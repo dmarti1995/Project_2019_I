@@ -1,3 +1,19 @@
+! INPUT y OUTPUT:
+!	+ r(N,3)    :: posiciones de las particulas
+!	+ v(N,3)    :: velocidades en el instante (t)
+!	+ vinf(N,3) :: velocidades en el instante (t-dt/2)
+!	+ vsup(N,3) :: velocidades en el instante (t+dt/2)
+!	+ t         :: tiempo
+!	+ L         :: longitud de la caja
+! INPUT:
+!	+ F(N,3)    :: fuerzas que actuan sobre cada particula en el instante (t)
+!	+ Ppot      :: contribucion a la presion debida a la interaccion entre particulas
+!	+ dt        :: paso de tiempo
+!	+ tau       :: tiempo caracteristico del termostato/barostato (tau = 20*dt)
+!	+ Rcut      :: cut-off de la interaccion entre particulas
+!	+ Text      :: temperatura del baño termico
+!	+ Ppot      :: presion externa
+
 subroutine leap_frog (r, v, vinf, vsup, t, F, Ppot, dt, tau, Rcut, L, Text, Pext)
 implicit none
 real, intent(inout) :: r(:,:), vinf(:,:), vsup(:,:), v(:,:), t, L
