@@ -1,4 +1,9 @@
 !------------------------------------------------------------------------
+!density(in): system density
+!L(in): system length
+!R(in): vector of the positions of the system
+!ncajas(in): number of r points in which the g(r) is computed
+!g(out): vector g(ncajas) of this time step
 subroutine gr(density,L,R,ncajas,g)
 real(8),parameter:: pi = acos(-1.0d0)
 real(8),parameter:: con = (4.0d0/3.0d0)*pi
@@ -20,15 +25,19 @@ xmin = 0.0d0
 xmax = 2.0D0*L
 interv = (xmax-xmin)/dble(ncajas)
 
-g = 0.0d0
+
 Histogram = 0
 
+!All possible particle pairs
 do i = 1,N-1
 	do j = i+1,N
+!Distance between them
 		rad = (R(j,:)-R(i,:))
+!We study our box and the nearest neighbour boxes
 		do Nx = -1,1
 			do Ny = -1,1
 				do Nz = -1,1
+!we make an histogram of all the images of the particle pairs.
 					rL = rad + L*(/Nx,Ny,Nz/)
 					R2 = sqrt(sum(rL**2))
 					caja = int(r2/interv) + 1
@@ -46,10 +55,11 @@ do i = 1,N-1
 enddo
 
 
+!From the Histogram we compute the g(r) of this time step 
 contint = xmin
 do j = 1,ncajas
 	if (Histogram(j)/=0) then
-		g(j) = g(j) + dble(Histogram(j))/&
+		g(j) =  dble(Histogram(j))/&
 		((con*((contint+interv)**3-(contint)**3))*density)
 	endif
 	contint = contint + interv
