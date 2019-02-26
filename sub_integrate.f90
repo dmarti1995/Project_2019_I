@@ -14,29 +14,26 @@
 !	+ Text      :: temperatura del baño termico
 !	+ Ppot      :: presion externa
 
-subroutine leap_frog (r, v, vinf, vsup, t, F, Ppot, dt, tau, Rcut, L, Text, Pext)
+subroutine leap_frog (npar,dim,r, v, vinf, vsup, t, F, Ppot, dt, taut,taup, Rcut, L, Text, Pext,pcalc,tcalc,ekin)
 implicit none
-real, intent(inout) :: r(:,:), vinf(:,:), vsup(:,:), v(:,:), t, L
-real, intent(in)    :: F(:,:), Ppot, dt, Rcut, tau, Text, Pext
-real                :: Ekin, Pcalc, Tcalc, lambda, mu
-integer             :: i, j, N
-
-N = size(r,1)
+real, intent(inout) :: r(npar,dim), vinf(npar,dim), vsup(npar,dim), v(npar,dim), t, L,ekin
+real, intent(in)    :: F(npar,dim), Ppot, dt, Rcut, taut,taup, Text, Pext
+real                :: Pcalc, Tcalc, lambda, mu
+integer             :: i, j, npar,dim
 
 ! TERMOSTATO
 Ekin   = 0.5 * sum(vinf**2)
-Tcalc  = 2.0 * Ekin / (3.0*N)
-lambda = sqrt(1.0 + dt/tau * (Text/Tcalc - 1.0))
-
+Tcalc  = 2.0 * Ekin / (3.0*npar)
+!print*, tcalc,ekin,vinf(3,1)
+lambda = sqrt(1.0 + dt/taut * (Text/Tcalc - 1.0))
 ! BAROSTATO
-Pcalc = Ppot + 2.0*Ekin/(3.0 * L**3)
-mu    = (1.0 + dt/tau*(Pcalc-Pext))**(1.0/3.0)
-
-! Leap frog + reescalados
-vinf = vsup
+Pcalc = (1d0/3d0)*(1/L**3)*(Ppot + 2d0*Ekin)
+mu    = (1.0 + dt/taup*(Pcalc-Pext))**(1.0/3.0)
+!print*,lambda,text,tcalc,mu,pcalc
+! Leap frog + reescalados (velocidad)
+!vinf = vsup
 vsup = lambda * (vinf + F*dt)
 r    = r + vsup*dt
-
 ! Reescalar r y L
 L = L * mu
 r = r * mu
@@ -44,8 +41,10 @@ r = r * mu
 ! v(t)
 v = 0.5 * (vinf + vsup)
 
+vinf=vsup
+
 ! Condiciones periodicas
-call PBC (N, L, r)
+call PBC (npar, L, r)
 
 t = t + dt
 
