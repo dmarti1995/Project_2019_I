@@ -14,7 +14,7 @@ program.exe: sub_integrate.o periodic.o Fuerzas.o initialize.o main.o
 	@gfortran $^ -o $@
 
 %.o: %.f90
-	@gfortran -c $^
+	@gfortran -c -freal-4-real-8 $^
 
 .PHONY: help
 help:
