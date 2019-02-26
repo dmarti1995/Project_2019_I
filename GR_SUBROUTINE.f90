@@ -5,24 +5,24 @@
 !ncajas(in): number of r points in which the g(r) is computed
 !g(out): vector g(ncajas) of this time step
 subroutine gr(density,L,R,ncajas,g)
-real(8),parameter:: pi = acos(-1.0d0)
-real(8),parameter:: con = (4.0d0/3.0d0)*pi
-real(8),intent(in):: density,L
-real(8),intent(in):: R(:,:)
+real,parameter:: pi = acos(-1.0)
+real,parameter:: con = (4.0/3.0)*pi
+real,intent(in):: density,L
+real,intent(in):: R(:,:)
 integer,intent(in):: ncajas
 integer:: N
-real(8):: xmin, xmax,interv,contint
+real:: xmin, xmax,interv,contint
 integer:: Histogram(ncajas),caja
-real(8),intent(out):: g(ncajas)
+real,intent(out):: g(ncajas)
 integer:: Nx,Ny,Nz
 integer:: i,j
-real(8):: rad(3),rL(3)
-real(8):: R2
+real:: rad(3),rL(3)
+real:: R2
 
 N = size(R,1)
 
-xmin = 0.0d0
-xmax = 2.0D0*L
+xmin = 0.0
+xmax = 2.0*L
 interv = (xmax-xmin)/dble(ncajas)
 
 

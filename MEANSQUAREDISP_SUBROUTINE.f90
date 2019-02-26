@@ -4,15 +4,15 @@
 !L(in): system length
 !meansquaredisp(out): Value of the meansquaredisp of this time step
 subroutine MSDISPLACEMENT(Rcurrent,Rfixed,L,meansquaredisp)
-real(8),intent(in):: Rcurrent(:,:),Rfixed(:,:)
-real(8),intent(in):: L
-real(8),intent(out):: meansquaredisp
-real(8):: R(3)
-real(8):: suma
+real,intent(in):: Rcurrent(:,:),Rfixed(:,:)
+real,intent(in):: L
+real,intent(out):: meansquaredisp
+real:: R(3)
+real:: suma
 integer:: i
 
 
-suma = 0.0D0
+suma = 0.0
 do i = 1,size(Rcurrent,1)
 	R = Rcurrent(i,:)-Rfixed(i,:)
 	call PBC(1,L,R) 
