@@ -1,35 +1,36 @@
 !------------------------------------------------------------------------
-subroutine gr(N,dim,density,L,COORD,ncajas,g,interv)
+subroutine gr(N,dim,density,L,COORD,rmax,ncajas,g)
 !N(in); numero de part
 !dim(in): dimension sistema
 !density(in): system density
 !L(in): system length
 !COORD(in): vector of the positions of the system
+!rmax(in): radio máximo hasta el que se calcula g(r)
 !ncajas(in): number of r points in which the g(r) is computed
 !g(out): vector g(ncajas) of this time step
-!interv(out): valor del intervalo dr
+!dr(out): valor del intervalo dr
 implicit none
 real,parameter:: pi = acos(-1.0)
 real,parameter:: con = (4.0/3.0)*pi
 integer,intent(in):: N,dim
-real(8),intent(in):: density,L
-real(8),intent(in):: COORD(N,dim)
+real,intent(in):: density,L
+real,intent(in):: COORD(N,dim)
+real,intent(in):: rmax 
 integer,intent(in):: ncajas
-real(8):: xmin, xmax,contint
+real:: contint
 integer:: Histogram(ncajas),caja
-real(8),intent(out):: g(ncajas),interv
+real,intent(out):: g(ncajas)
+real:: dr
 integer:: Nx,Ny,Nz
 integer:: i,j
-real(8):: r(3),rL(3)
-real(8):: R2,R2_caja
+real:: r(3),rL(3)
+real:: R2,R2_caja
 
 
+g = 0.0d0
+dr = rmax/dble(ncajas)
 
-xmin = 0.0d0
-xmax = 2.0D0*L
-interv = (xmax-xmin)/dble(ncajas)
-
-
+print*,dr,L
 Histogram = 0
 
 !All possible particle pairs
@@ -43,7 +44,7 @@ do i = 1,N-1
 !we make an histogram of all the images of the particle pairs.
 					rL = r + L*(/Nx,Ny,Nz/)
 					R2 = sqrt(sum(rL**2))
-					caja = int(r2/interv) + 1
+					caja = int(r2/dr) + 1
 					if (caja<0) then
 						cycle
 					elseif(caja>ncajas) then
@@ -58,13 +59,13 @@ do i = 1,N-1
 enddo
 
 !From the Histogram we compute the g(r) of this time step 
-contint = xmin
+contint = 0.0d0
 do j = 1,ncajas
 	if (Histogram(j)/=0) then
 		g(j) =  dble(Histogram(j))/&
-		((con*((contint+interv)**3-(contint)**3))*density)
+		((con*((contint+dr)**3-(contint)**3))*density)
 	endif
-	contint = contint + interv
+	contint = contint + dr
 enddo
 
 return
