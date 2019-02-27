@@ -1,45 +1,47 @@
 !------------------------------------------------------------------------
+subroutine gr(N,dim,density,L,COORD,ncajas,g,interv)
+!N(in); numero de part
+!dim(in): dimension sistema
 !density(in): system density
 !L(in): system length
-!R(in): vector of the positions of the system
+!COORD(in): vector of the positions of the system
 !ncajas(in): number of r points in which the g(r) is computed
 !g(out): vector g(ncajas) of this time step
-subroutine gr(density,L,R,ncajas,g,interv)
+!interv(out): valor del intervalo dr
+implicit none
 real,parameter:: pi = acos(-1.0)
 real,parameter:: con = (4.0/3.0)*pi
-real,intent(in):: density,L
-real,intent(in):: R(:,:)
+integer,intent(in):: N,dim
+real(8),intent(in):: density,L
+real(8),intent(in):: COORD(N,dim)
 integer,intent(in):: ncajas
-integer:: N
-real:: xmin, xmax,contint
+real(8):: xmin, xmax,contint
 integer:: Histogram(ncajas),caja
-real,intent(out):: g(ncajas)
-real,intent(out):: interv
+real(8),intent(out):: g(ncajas),interv
 integer:: Nx,Ny,Nz
 integer:: i,j
-real:: rad(3),rL(3)
-real:: R2
+real(8):: r(3),rL(3)
+real(8):: R2,R2_caja
 
-N = size(R,1)
 
-xmin = 0.0
-xmax = 2.0*L
+
+xmin = 0.0d0
+xmax = 2.0D0*L
 interv = (xmax-xmin)/dble(ncajas)
 
 
 Histogram = 0
 
 !All possible particle pairs
-do i = 1,N-1
+do i = 1,N
 	do j = i+1,N
-!Distance between them
-		rad = (R(j,:)-R(i,:))
+		r = (COORD(:,j)-COORD(:,i))
 !We study our box and the nearest neighbour boxes
 		do Nx = -1,1
 			do Ny = -1,1
 				do Nz = -1,1
 !we make an histogram of all the images of the particle pairs.
-					rL = rad + L*(/Nx,Ny,Nz/)
+					rL = r + L*(/Nx,Ny,Nz/)
 					R2 = sqrt(sum(rL**2))
 					caja = int(r2/interv) + 1
 					if (caja<0) then
@@ -54,7 +56,6 @@ do i = 1,N-1
 		enddo
 	enddo
 enddo
-
 
 !From the Histogram we compute the g(r) of this time step 
 contint = xmin
