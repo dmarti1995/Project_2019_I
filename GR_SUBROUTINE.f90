@@ -1,5 +1,5 @@
 !------------------------------------------------------------------------
-subroutine gr(N,dim,density,L,COORD,rmax,ncajas,g)
+subroutine gr(N,dim,density,L,COORD,rmax,ncajas,g,dr)
 !N(in); numero de part
 !dim(in): dimension sistema
 !density(in): system density
@@ -30,7 +30,7 @@ real:: R2,R2_caja
 g = 0.0d0
 dr = rmax/dble(ncajas)
 
-print*,dr,L
+
 Histogram = 0
 
 !All possible particle pairs
