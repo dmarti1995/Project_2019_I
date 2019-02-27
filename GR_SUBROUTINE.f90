@@ -33,9 +33,9 @@ interv = (xmax-xmin)/dble(ncajas)
 Histogram = 0
 
 !All possible particle pairs
-do i = 1,N
+do i = 1,N-1
 	do j = i+1,N
-		r = (COORD(:,j)-COORD(:,i))
+		r = (COORD(j,:)-COORD(i,:))
 !We study our box and the nearest neighbour boxes
 		do Nx = -1,1
 			do Ny = -1,1
