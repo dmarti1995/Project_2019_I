@@ -3,8 +3,10 @@
 !Rfixed(in): fixed configuration of the particles from which the meansquaredisp is computed
 !L(in): system length
 !meansquaredisp(out): Value of the meansquaredisp of this time step
-subroutine MSDISPLACEMENT(Rcurrent,Rfixed,L,meansquaredisp)
-real,intent(in):: Rcurrent(:,:),Rfixed(:,:)
+subroutine MSDISPLACEMENT(npar,dim,Rcurrent,Rfixed,L,meansquaredisp)
+implicit none
+integer,intent(in) :: npar,dim
+real,intent(in):: Rcurrent(npar,dim),Rfixed(npar,dim)
 real,intent(in):: L
 real,intent(out):: meansquaredisp
 real:: R(3)
