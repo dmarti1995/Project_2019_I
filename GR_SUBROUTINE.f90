@@ -4,16 +4,17 @@
 !R(in): vector of the positions of the system
 !ncajas(in): number of r points in which the g(r) is computed
 !g(out): vector g(ncajas) of this time step
-subroutine gr(density,L,R,ncajas,g)
+subroutine gr(density,L,R,ncajas,g,interv)
 real,parameter:: pi = acos(-1.0)
 real,parameter:: con = (4.0/3.0)*pi
 real,intent(in):: density,L
 real,intent(in):: R(:,:)
 integer,intent(in):: ncajas
 integer:: N
-real:: xmin, xmax,interv,contint
+real:: xmin, xmax,contint
 integer:: Histogram(ncajas),caja
 real,intent(out):: g(ncajas)
+real,intent(out):: interv
 integer:: Nx,Ny,Nz
 integer:: i,j
 real:: rad(3),rL(3)
