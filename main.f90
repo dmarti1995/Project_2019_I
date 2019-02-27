@@ -3,7 +3,7 @@ implicit none
 real, allocatable :: pos(:,:),vel(:,:),f_par(:,:),velinf(:,:),velsup(:,:)
 real, allocatable :: grad(:),posini(:,:),gmean(:)
 real :: rc,tbath,pext,press,ppot,rho,length,time,dt,taup,taut,tcalc,eps,mass,sigma,length2
-real :: uener,utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2
+real :: uener,utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt
 integer :: npar, dim,ii,timesteps,outg,oute,equi,nbox
 
 
@@ -40,6 +40,7 @@ allocate(grad(nbox),gmean(nbox))
 !units output: time ---> ps, energy --> KJ/mol, temperature --> kelvin, pressure ---> Atmospheres
 open(10,file='data_EK_EP_T_P.dat',status='unknown')
 open(20,file='mean_square_disp.dat',status='unknown')
+open(30,file='rad_dist_func.dat',status='unknown')
 
 
 !Calculation of the magnitudes in reduced units---
@@ -47,22 +48,23 @@ call reduced_units(eps,mass,sigma,utime,utemp,upress,udens)
 rho=rho/udens
 pext=pext/upress
 tbath=tbath/utemp
-
+tmelt=4d0
 !Initialisation of the system velocity and position
 call initialize(pos,velinf,rho,tbath,npar,length)
 velsup=velinf
 
 time=0d0
-!Equilibration of the system: We leave a certain number of timesteps to destroy initial order
+!Equilibration and melting of the system: We leave a certain number of timesteps to destroy initial order
 do ii=1,equi
     call force(npar,length,rc,pos,f_par,ppot,epot)
-    call leap_frog(npar,dim,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tbath,pext,press,tcalc,ekin)
+    call leap_frog(npar,dim,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tmelt,pext,press,tcalc,ekin)
 enddo
 
 posini=pos
 contep=0d0
 conteg=0d0
 time=0d0
+gmean=0d0
 !Bucle of times where leap-frog algorithm is called
 do ii=1,timesteps
     call force(npar,length,rc,pos,f_par,ppot,epot)
@@ -72,18 +74,18 @@ do ii=1,timesteps
        ! print*, time*utime,ekin*eps*1d-3,epot*eps*1d-3,tcalc*utemp,press*upress,nbox
     endif
     if (mod(ii,outg).eq.0) then
-    conteg=conteg+1d0
-    call MSDISPLACEMENT(npar,dim,posini,pos,length,meansq)
-    call gr(npar,dim,rho,length,pos,nbox,grad,interv)
-  !  write(20,*) time*utime,meansq*sigma*sigma
-   ! print*, grad(100),nbox,length,press*upress
+        conteg=conteg+1d0                   !we count the times we measure to calculate the mean g(r)
+        call MSDISPLACEMENT(npar,dim,posini,pos,length,meansq)
+        call gr(npar,dim,rho,length,pos,3.0,nbox,grad,dgr)
+        write(20,*) time*utime,meansq*sigma*sigma
+        print*, time*utime,ekin*eps*1d-3,epot*eps*1d-3,tcalc*utemp,press*upress,length,dgr
+        gmean(:)=gmean(:)+grad(:)                    !accumulated distribution function
     endif
 enddo
 
 !-------End of simulation: Now we write the radial distribution function
-do ii=1,timesteps
-
-
+do ii=1,nbox
+    write(30,*) sigma*dgr*real(ii),gmean(ii)/conteg
 enddo
 
 end
@@ -102,7 +104,7 @@ implicit none
 real :: mass,sigma,utime,utemp,uener,upress,udens
 
 upress=(uener/(sigma**3.0))*(1d0/1.013d5)     !pressure units in atmosphere
-utemp=uener/8.31d0        !temperature in Kelvin units
+utemp=uener/8.31d0        !temperature in Kelvin units (uener-->J/mol, 8.31---> J/(K·mol)
 udens=(1d0/0.6022)*(sigma**3)/(mass)   !0.6022: factor (10^-8)^3*(6.022^10^(-23))
 utime=sigma*sqrt((mass*1d-3)/uener)*100d0 !unit time in picoseconds
 return

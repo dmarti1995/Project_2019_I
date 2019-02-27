@@ -1,16 +1,16 @@
 1000	!!equilibration timesteps
-10000  !timesteps
+40000  !timesteps
 3      !!dimension
 108    !!particles
 3.4d0  !! particle radius sigma (Angstroms)
 0.998d3       !! energy unit (eps) Argon : J/mol
 39.95d0	   !! mass g/mol
 1d-3   !!simulation dt
-50d0   !! Berensden parameter temperature
+20d0   !! Berensden parameter temperature
 50d0   !! Berensden parameter pressure
-1.4d0  !!density g/cm^3
+0.9d0  !!density g/cm^3
 1.5d0  !!cutoff radius, in reduced units (particle radius=1)
-270d0     !!temperature, in Kelvin
-2d0      !! pressure, in ATM
+500d0     !!temperature, in Kelvin
+1d0      !! pressure, in ATM
 1,1000     !!number of time steps to measure g(r) and mean square displacement
 500	 !!Number of positions to calculate radial distribution function
