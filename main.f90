@@ -74,7 +74,7 @@ do ii=1,timesteps
     if (mod(ii,outg).eq.0) then
     conteg=conteg+1d0
    ! call MSDISPLACEMENT(npar,dim,posini,pos,length,meansq)
-  !  call gr(npar,dim,rho,length,pos,nbox,grad,interv)
+    call gr(npar,dim,rho,length,pos,6.0,nbox,grad)
   !  write(20,*) time*utime,meansq*sigma*sigma
    ! print*, grad(100),nbox,length,press*upres
  print*, time*utime,ekin*eps*1d-3,epot*eps*1d-3,tcalc*utemp,press*upress,length
