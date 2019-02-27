@@ -30,6 +30,7 @@ real:: R2,R2_caja
 g = 0.0d0
 dr = rmax/dble(ncajas)
 
+
 Histogram = 0
 
 !All possible particle pairs

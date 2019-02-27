@@ -4,6 +4,7 @@ real, allocatable :: pos(:,:),vel(:,:),f_par(:,:),velinf(:,:),velsup(:,:)
 real, allocatable :: grad(:),posini(:,:),gmean(:)
 real :: rc,tbath,pext,press,ppot,rho,length,time,dt,taup,taut,tcalc,eps,mass,sigma,length2
 real :: uener,utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt
+
 integer :: npar, dim,ii,timesteps,outg,oute,equi,nbox
 
 
@@ -43,12 +44,14 @@ open(20,file='mean_square_disp.dat',status='unknown')
 open(30,file='rad_dist_func.dat',status='unknown')
 
 
+
 !Calculation of the magnitudes in reduced units---
 call reduced_units(eps,mass,sigma,utime,utemp,upress,udens)
 rho=rho/udens
 pext=pext/upress
 tbath=tbath/utemp
 tmelt=4d0
+
 !Initialisation of the system velocity and position
 call initialize(pos,velinf,rho,tbath,npar,length)
 velsup=velinf
@@ -65,6 +68,8 @@ contep=0d0
 conteg=0d0
 time=0d0
 gmean=0d0
+
+
 !Bucle of times where leap-frog algorithm is called
 do ii=1,timesteps
     call force(npar,length,rc,pos,f_par,ppot,epot)
@@ -86,6 +91,7 @@ enddo
 !-------End of simulation: Now we write the radial distribution function
 do ii=1,nbox
     write(30,*) sigma*dgr*real(ii),gmean(ii)/conteg
+
 enddo
 
 end
