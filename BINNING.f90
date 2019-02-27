@@ -37,14 +37,16 @@ Subroutine BINNING_SUBR(numBINmin,ARCHin,ARCHout,NMC,Nini,L)
 integer,intent(in):: numBINmin
 character(len = *),intent(in):: ARCHin,ARCHout
 integer:: NMC,Nini,L
-real(8):: dum1,dum2,dum3,dum4,dum5,dum6,dum7
+real(8):: dum1,dum2,dum3,dum4,dum5
 real(8),allocatable:: BINNEDP(:),AUXP(:)
+real(8),allocatable:: BINNEDT(:),AUXT(:)
 real(8),allocatable:: BINNEDEp(:),AUXEp(:)
 real(8),allocatable:: BINNEDEc(:),AUXEc(:)
 real(8),allocatable:: BINNEDEm(:),AUXEm(:)
-real(8):: sumaP,sumaEc,sumaEp,sumaEm
+real(8):: sumaP,sumaT,sumaEc,sumaEp,sumaEm
 integer:: n,m,i,j,cont,numBIN,r
 real(8):: ValP, VarP
+real(8):: ValT, VarT
 real(8):: ValEc, VarEc
 real(8):: ValEp, VarEp
 real(8):: ValEm, VarEm
@@ -54,30 +56,33 @@ open(20,FILE=ARCHin)
 open(432,FILE=ARCHout)
 n = NMC - Nini
 allocate(AUXP(n))
+allocate(AUXT(n))
 allocate(AUXEc(n))
 allocate(AUXEp(n))
 allocate(AUXEm(n))
 cont = 0
 do i =1,NMC
-	read(20,*) dum1,dum2,dum3,dum4,dum5,dum6,dum7
-	print*,dum7
+	read(20,*) dum1,dum2,dum3,dum4,dum5
 	if (i > Nini) then
 		cont = cont + 1
 !ES GUARDA EN UN VECTOR 
 		AUXEc(cont) = dum2
 		AUXEp(cont) = dum3
-		AUXEm(cont) = dum4
-		AUXP(cont) = dum7
+		AUXEm(cont) = dum2 + dum3
+		AUXT(cont) = dum4
+		AUXP(cont) = dum5
 	endif
 enddo
 
 ! CALCUL DEL VALOR ESPERAT I DE LA VARIANÇA DE E I M PER CAIXES DE MIDA m=1
 m = 1
 call Val_esp(AUXP,ValP,VarP)
+call Val_esp(AUXT,ValT,VarT)
 call Val_esp(AUXEc,ValEc,VarEc)
 call Val_esp(AUXEp,ValEp,VarEp)
 call Val_esp(AUXEm,ValEm,VarEm)
-write(432,*) m,ValP,sqrt(VarP),ValEc,sqrt(VarEc),ValEp,sqrt(VarEp),ValEm,sqrt(VarEm)
+write(432,*) m,ValEc,sqrt(VarEc),ValEp,sqrt(VarEp),ValEm,&
+sqrt(VarEm),ValP,sqrt(VarP),ValT,sqrt(VarT)
 
 !FENT CAIXES CADA COP EL DOBLE DE GRANS ES FA EL PROCES DE BINNING
 
@@ -93,6 +98,7 @@ do while (numBIN > numBINmin)
 	if (r == 0) then
 !SI TOTES LES DADES ENTREN EN CAIXES DE LA MATEIXA MIDA:
 		allocate(BINNEDP(numBIN))
+		allocate(BINNEDT(numBIN))
 		allocate(BINNEDEc(numBIN))
 		allocate(BINNEDEp(numBIN))
 		allocate(BINNEDEm(numBIN))
@@ -100,6 +106,7 @@ do while (numBIN > numBINmin)
 !SI SOBREN DADES QUE NO CABEN EN UNA CAIXA DE MIDA n/m ES GENERA UNA CAIXA NOVA
 ! DE MIDA VARIABLE SEGONS EL NOMBRE DE DADES QUE SOBREN.
 		allocate(BINNEDP(numBIN+1))
+		allocate(BINNEDT(numBIN+1))
 		allocate(BINNEDEc(numBIN+1))
 		allocate(BINNEDEp(numBIN+1))
 		allocate(BINNEDEm(numBIN+1))
@@ -108,6 +115,7 @@ do while (numBIN > numBINmin)
 
 	cont = 0
 	BINNEDP = 0.0d0
+	BINNEDT = 0.0d0
 	BINNEDEc = 0.0d0
 	BINNEDEp = 0.0d0
 	BINNEDEm = 0.0d0
@@ -115,17 +123,20 @@ do while (numBIN > numBINmin)
 ! PAS ANTERIOR DEL BINNIG.
 	do i = 1,numBIN
 		sumaP = 0.0d0
+		sumaT = 0.0d0
 		sumaEc = 0.0d0
 		sumaEp = 0.0d0
 		sumaEm = 0.0d0
 		do j = 1,2
 			cont = cont+1
 			sumap = sumap + AUXp(cont)
+			sumaT = sumaT + AUXT(cont)
 			sumaEc = sumaEc + AUXEc(cont)
 			sumaEp = sumaEp + AUXEp(cont)
 			sumaEm = sumaEm + AUXEm(cont)
 		enddo
 		BINNEDP(i) = dble(sumaP)/2.0d0
+		BINNEDT(i) = dble(sumaT)/2.0d0
 		BINNEDEc(i) = dble(sumaEc)/2.0d0
 		BINNEDEp(i) = dble(sumaEp)/2.0d0
 		BINNEDEm(i) = dble(sumaEm)/2.0d0
@@ -134,30 +145,36 @@ do while (numBIN > numBINmin)
 	do i =1,r
 		cont = cont+1
 		BINNEDP(numBIN + 1) = BINNEDP(numBIN + 1) + AUXP(cont)/r
+		BINNEDT(numBIN + 1) = BINNEDT(numBIN + 1) + AUXT(cont)/r
 		BINNEDEc(numBIN + 1) = BINNEDEc(numBIN + 1) + AUXEc(cont)/r
 		BINNEDEp(numBIN + 1) = BINNEDEp(numBIN + 1) + AUXEp(cont)/r
 		BINNEDEm(numBIN + 1) = BINNEDEm(numBIN + 1) + AUXEm(cont)/r
 	enddo
 !ES CALCULA EL VALOR ESPERAT I LA VARIANÇA DE E I M AMB AQUEST NOU RESAMPLEIG
 	call Val_esp(BINNEDP,ValP,VarP)
+	call Val_esp(BINNEDT,ValT,VarT)
 	call Val_esp(BINNEDEc,ValEc,VarEc)
 	call Val_esp(BINNEDEp,ValEp,VarEp)
 	call Val_esp(BINNEDEm,ValEm,VarEm)
-	write(432,*) m,ValP,sqrt(VarP),ValEc,sqrt(VarEc),ValEp,sqrt(VarEp),ValEm,sqrt(VarEm)
-
+	write(432,*) m,ValEc,sqrt(VarEc),ValEp,sqrt(VarEp),ValEm,&
+		sqrt(VarEm),ValP,sqrt(VarP),ValT,sqrt(VarT)
 	deallocate(AUXP)
+	deallocate(AUXT)
 	deallocate(AUXEc)
 	deallocate(AUXEp)
 	deallocate(AUXEm)
 	allocate(AUXP(size(BINNEDP)))
+	allocate(AUXT(size(BINNEDT)))
 	allocate(AUXEc(size(BINNEDEc)))
 	allocate(AUXEp(size(BINNEDEp)))
 	allocate(AUXEm(size(BINNEDEm)))
 	AUXP = BINNEDP
+	AUXT = BINNEDT
 	AUXEc = BINNEDEc
 	AUXEp = BINNEDEp
 	AUXEm = BINNEDEm
 	deallocate(BINNEDP)
+	deallocate(BINNEDT)
 	deallocate(BINNEDEc)
 	deallocate(BINNEDEp)
 	deallocate(BINNEDEm)
@@ -167,6 +184,7 @@ do while (numBIN > numBINmin)
 enddo
 
 deallocate(AUXP)
+deallocate(AUXT)
 deallocate(AUXEc)
 deallocate(AUXEp)
 deallocate(AUXEm)
@@ -188,10 +206,10 @@ PROGRAM BINNING_MAIN_PROG
 use BINNING
 implicit none
 !PARÂMETRES DEL PROGRAMA:
-integer,parameter:: Npassos = 1000000 , Nini = 100 , Npart = 108
+integer,parameter:: Npassos = 10000 , Nini = 100 , Npart = 108
 
-call BINNING_SUBR(2,"VELOCITY_VERLET_ANDERSEN_0.8.txt",&
-					"BINNING_0.8.txt",Npassos,Nini,Npart)
+call BINNING_SUBR(2,"data_EK_EP_T_P.dat",&
+					"BINNING.dat",Npassos,Nini,Npart)
 
 
 END PROGRAM BINNING_MAIN_PROG
