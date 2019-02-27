@@ -1,4 +1,4 @@
-subroutine initialize(pos,v,rho,T,N)
+subroutine initialize(pos,v,rho,T,N,L)
 
 ! N   : number of particles 
 ! a   : lattice spacing
@@ -11,7 +11,8 @@ implicit none
 integer, intent(in)               :: N
 real, intent(in)                  :: rho, T
 real, dimension(:,:), intent(out) :: pos(N,3), v(N,3)
-real                              :: a, L, kinetic
+real, intent(out)                 :: L
+real                              :: a, kinetic
 integer                           :: i, j, k, cont, M
 integer, dimension(3)             :: R
 
