@@ -10,7 +10,7 @@ plot: program.exe
 	@./program.exe
 	@gnuplot *.gnu
 
-program.exe: sub_integrate.o periodic.o Fuerzas.o initialize.o main.o
+program.exe: sub_integrate.o periodic.o Fuerzas.o initialize.o GR_SUBROUTINE.o MEANSQUAREDISP_SUBROUTINE.o main.o
 	@gfortran $^ -o $@
 
 %.o: %.f90

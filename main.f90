@@ -8,7 +8,7 @@ real :: uener,utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho
 integer :: npar, dim,ii,timesteps,outg,oute,equi,nbox
 
 
-open(1,file='input.dat',status='old')   !Input file
+open(1,file='input.txt',status='old')   !Input file
 
 read(1,*) equi          !equilibration time before starting measures
 read(1,*) timesteps     !integer timesteps
@@ -37,6 +37,7 @@ read(1,*) nbox        !Number of positions to calculate radial distribution func
 allocate(pos(npar,dim),vel(npar,dim),velinf(npar,dim),velsup(npar,dim),f_par(npar,dim),posini(npar,dim))   !allocation of variables
 allocate(grad(nbox),gmean(nbox))
 
+
 !Files where data will be saved:
 !units output: time ---> ps, energy --> KJ/mol, temperature --> kelvin, pressure ---> Atmospheres
 open(10,file='data_EK_EP_T_P.dat',status='unknown')
@@ -50,10 +51,14 @@ call reduced_units(eps,mass,sigma,utime,utemp,upress,udens)
 rho=rho/udens
 pext=pext/upress
 tbath=tbath/utemp
-tmelt=4d0
+
+! Melting temperature --> tmelt
+tmelt=1000*tbath
 
 !Initialisation of the system velocity and position
-call initialize(pos,velinf,rho,tbath,npar,length)
+call initialize_r(pos,rho,Npar,length)
+call initialize_v(velinf,Tmelt,Npar)
+
 velsup=velinf
 
 time=0d0
@@ -63,11 +68,25 @@ do ii=1,equi
     call leap_frog(npar,dim,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tmelt,pext,press,tcalc,ekin)
 enddo
 
+! Reinitialize velocities according to the bath temperature
+
+call initialize_v(velinf,tbath,Npar)
+velsup=velinf
+
+! Equilibrate with real bath temperature
+
+time=0.0
+do ii=1,equi
+    call force(npar,length,rc,pos,f_par,ppot,epot)
+    call leap_frog(npar,dim,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tbath,pext,press,tcalc,ekin)
+enddo
+
 posini=pos
 contep=0d0
 conteg=0d0
 time=0d0
 gmean=0d0
+
 
 
 !Bucle of times where leap-frog algorithm is called
@@ -81,9 +100,9 @@ do ii=1,timesteps
     if (mod(ii,outg).eq.0) then
         conteg=conteg+1d0                   !we count the times we measure to calculate the mean g(r)
         call MSDISPLACEMENT(npar,dim,posini,pos,length,meansq)
-        call gr(npar,dim,rho,length,pos,3.0,nbox,grad,dgr)
+        call gr(npar,dim,rho,length,pos,5.0,nbox,grad,dgr)
         write(20,*) time*utime,meansq*sigma*sigma
-        print*, time*utime,ekin*eps*1d-3,epot*eps*1d-3,tcalc*utemp,press*upress,length,dgr
+        !print*, time*utime,ekin*eps*1d-3,epot*eps*1d-3,tcalc*utemp,press*upress,length,dgr
         gmean(:)=gmean(:)+grad(:)                    !accumulated distribution function
     endif
 enddo
