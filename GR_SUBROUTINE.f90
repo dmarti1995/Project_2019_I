@@ -63,7 +63,7 @@ contint = 0.0d0
 do j = 1,ncajas
 	if (Histogram(j)/=0) then
 		g(j) =  dble(Histogram(j))/&
-		((con*((contint+dr)**3-(contint)**3))*density)
+		(2*N*(con*((contint+dr)**3-(contint)**3))*density)
 	endif
 	contint = contint + dr
 enddo

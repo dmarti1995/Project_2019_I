@@ -1,5 +1,3 @@
-subroutine initialize(pos,v,rho,T,N,L)
-
 ! N   : number of particles 
 ! a   : lattice spacing
 ! T   : temperatute
@@ -7,14 +5,16 @@ subroutine initialize(pos,v,rho,T,N,L)
 ! v   : velocities of particles --> (N,3) array
 ! rho : density of the system
 
+subroutine initialize_r(pos,rho,N,L)
+
 implicit none
-integer, intent(in)               :: N
-real, intent(in)                  :: rho, T
-real, dimension(:,:), intent(out) :: pos(N,3), v(N,3)
-real, intent(out)                 :: L
-real                              :: a, kinetic
-integer                           :: i, j, k, cont, M
-integer, dimension(3)             :: R
+integer, intent(in)   :: N
+real, intent(in)      :: rho
+real, intent(out)     :: pos(N,3)
+real, intent(out)     :: L
+real                  :: a, kinetic
+integer               :: i, j, k, cont, M
+integer, dimension(3) :: R
 
 ! Initialization of the structure
 
@@ -37,6 +37,14 @@ do i = 0, M-1
     enddo
 enddo
 
+end subroutine initialize_r
+
+subroutine initialize_v(v,T,N)
+
+real, intent(out)   :: v(N,3) 
+integer, intent(in) :: N
+real, intent(in)    :: T
+integer             :: i
 
 ! Initialization of velocities
 
@@ -52,4 +60,4 @@ enddo
 kinetic = 0.5 * sum(v**2.0)
 v = v * sqrt(1.5 * N * T / kinetic) 
 
-end subroutine initialize
+end subroutine initialize_v
