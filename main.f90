@@ -65,7 +65,8 @@ time=0d0
 !Equilibration and melting of the system: We leave a certain number of timesteps to destroy initial order
 do ii=1,equi
     call force(npar,length,rc,pos,f_par,ppot,epot)
-    call leap_frog(npar,dim,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tmelt,pext,press,tcalc,ekin)
+    call leap_frog(Npar,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tmelt,pext,press,tcalc,ekin)
+    call PBC(npar, length, pos)
 enddo
 
 ! Reinitialize velocities according to the bath temperature
@@ -78,7 +79,8 @@ velsup=velinf
 time=0.0
 do ii=1,equi
     call force(npar,length,rc,pos,f_par,ppot,epot)
-    call leap_frog(npar,dim,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tbath,pext,press,tcalc,ekin)
+    call leap_frog(Npar,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tbath,pext,press,tcalc,ekin)
+    call PBC(npar, length, pos)
 enddo
 
 posini=pos
@@ -92,7 +94,8 @@ gmean=0d0
 !Bucle of times where leap-frog algorithm is called
 do ii=1,timesteps
     call force(npar,length,rc,pos,f_par,ppot,epot)
-    call leap_frog(npar,dim,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tbath,pext,press,tcalc,ekin)
+    call leap_frog(Npar,pos,vel,velinf,velsup,time,f_par,ppot,dt,taut,taup,rc,length,tbath,pext,press,tcalc,ekin)
+    call PBC(npar, length, pos)
     if (mod(ii,oute).eq.0) then
         write(10,*) time*utime,ekin*eps*1d-3,epot*eps*1d-3,tcalc*utemp,press*upress
        ! print*, time*utime,ekin*eps*1d-3,epot*eps*1d-3,tcalc*utemp,press*upress,nbox
