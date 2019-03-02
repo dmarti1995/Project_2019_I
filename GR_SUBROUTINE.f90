@@ -50,7 +50,7 @@ do i = 1,N-1
 					elseif(caja>ncajas) then
 						cycle
 					else
-					Histogram(caja) = Histogram(caja) + 1
+					Histogram(caja) = Histogram(caja) + 2
 					endif
 				enddo
 			enddo
@@ -63,7 +63,7 @@ contint = 0.0d0
 do j = 1,ncajas
 	if (Histogram(j)/=0) then
 		g(j) =  dble(Histogram(j))/&
-		(2*N*(con*((contint+dr)**3-(contint)**3))*density)
+		(N*(con*((contint+dr)**3-(contint)**3))*density)
 	endif
 	contint = contint + dr
 enddo

@@ -1,54 +1,56 @@
-! INPUT y OUTPUT:
-!	+ r(N,3)    :: posiciones de las particulas
-!	+ v(N,3)    :: velocidades en el instante (t)
-!	+ vinf(N,3) :: velocidades en el instante (t-dt/2)
-!	+ vsup(N,3) :: velocidades en el instante (t+dt/2)
-!	+ t         :: tiempo
-!	+ L         :: longitud de la caja
-! INPUT:
-!	+ F(N,3)    :: fuerzas que actuan sobre cada particula en el instante (t)
-!	+ Ppot      :: contribucion a la presion debida a la interaccion entre particulas
-!	+ dt        :: paso de tiempo
-!	+ taup/taut :: tiempo caracteristico del termostato/barostato
-!	+ Rcut      :: cut-off de la interaccion entre particulas
-!	+ Text      :: temperatura del baño termico
-!	+ Pext      :: presion externa
-! OUTPUT:
-!	+ Pcalc     :: presion total del sistema
-!	+ Tcalc     :: temperatura del sistema
-!	+ Ekin      :: energia cinetica del sistema
-
-subroutine leap_frog (N, r, v, vinf, vsup, t, F, Ppot, dt, taut, taup, Rcut, L, Text, Pext, Pcalc, Tcalc, Ekin)
+subroutine v_verlet_step (N, r, v, t, dt, Rcut, L, F, press, Epot, Ekin)
 implicit none
-integer, intent(in) :: N
-real, intent(inout) :: r(N,3), vinf(N,3), vsup(N,3), v(N,3), t, L,ekin
-real, intent(in)    :: F(N,3), Ppot, dt, Rcut, taut, taup, Text, Pext
-real                :: Pcalc, Tcalc, lambda, mu
-integer             :: i, j
+real, intent(inout) :: r(N,3), v(N,3), F(N,3), t
+real, intent(in)    :: dt, Rcut, L
+real, intent(out)   :: press, Epot, Ekin
+integer             :: N
 
+r = r + v*dt + 0.5*F*dt**2
+v = v + 0.5*F*dt
 
-! TERMOSTATO
-Ekin   = 0.5 * sum(vinf**2)
-Tcalc  = 2.0 * Ekin / (3.0*N)
-lambda = sqrt(1.0 + dt/taut * (Text/Tcalc - 1.0))
-
-! BAROSTATO
-Pcalc = (1.0/3.0)*(1.0/L**3)*(Ppot + 2.0*Ekin)
-mu    = (1.0 + dt/taup*(Pcalc-Pext))**(1.0/3.0)
-
-! Leap frog + reescalados (velocidad)
-vsup = lambda * (vinf + F*dt)
-r    = r + vsup*dt
-
-! Reescalar r y L
-L = L * mu
-r = r * mu
-
-! v(t)
-v = 0.5 * (vinf + vsup)
-
-vinf=vsup
+call force (N, L, Rcut, r, v, F, press, Epot, Ekin)
+v = v + 0.5*F*dt
 
 t = t + dt
 
-end subroutine leap_frog
+end subroutine v_verlet_step
+
+
+subroutine thermostat (N, v, nu, temperature)
+implicit none
+real, intent(inout) :: v(N,3)
+real, intent(in)    :: nu, temperature
+integer, intent(in) :: N
+real                :: u, z1, z2
+integer             :: i, j
+
+do i = 1, N
+  call random_number(u)
+  if (u < nu) then
+    call normal_distr(0.0, sqrt(temperature), z1, z2)
+    v(i,1) = z1
+    v(i,2) = z2
+    call normal_distr(0.0, sqrt(temperature), z1, z2)
+    v(i,3) = z1
+  endif
+enddo
+
+end subroutine thermostat
+
+
+subroutine normal_distr(mu, sigma, z1, z2)
+implicit none 
+real, intent(in)  :: mu, sigma
+real, intent(out) :: z1, z2
+real, parameter   :: pi = acos(-1.0)
+real              :: x, y
+
+call random_number(x)
+call random_number(y)
+z1 = sqrt(-2.0 * log(x)) * cos(2.0 * pi * y)
+z2 = sqrt(-2.0 * log(x)) * sin(2.0 * pi * y)
+z1 = z1 * sigma + mu
+z2 = z2 * sigma + mu
+
+end subroutine normal_distr
+

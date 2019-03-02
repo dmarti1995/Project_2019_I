@@ -17,7 +17,7 @@ integer:: i
 suma = 0.0
 do i = 1,size(Rcurrent,1)
 	R = Rcurrent(i,:)-Rfixed(i,:)
-	call PBC(1,L,R) 
+	R = R - L*nint(R/L)
 	suma = suma + (sum(R**2))
 enddo
 
