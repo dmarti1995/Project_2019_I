@@ -1,5 +1,5 @@
 1000	 ! equilibration timesteps
-50000    ! timesteps
+1000000  ! timesteps
 3        ! dimension
 108      ! particles
 2.556    ! particle radius sigma (Angstroms)
