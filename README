@@ -2,14 +2,14 @@
 DISTRIBUCION DEL TRABAJO
 ------------------------
 
-Coordinacion        -> Jon Lopez (jlopez141)
-Intial state        -> Asier Zabalo (azabaloa)
-Boundary Conditions -> Didac Marti (dmarti1995)
-Forces              -> Manuel Canovas (ManuelC1996)
-Integration         -> Jon Lopez (jlopez141)
-Statistics          -> Joan Giralt (joangi96)
-Visualization       -> Sergio Granados (slevinskygra)
-Makefile            -> Asier Zabalo (azabaloa)
+Coordinacion        --> Jon Lopez (jlopez141)
+Intial state        --> Asier Zabalo (azabaloa)
+Boundary Conditions --> Didac Marti (dmarti1995)
+Forces              --> Manuel Canovas (ManuelC1996)
+Integration         --> Jon Lopez (jlopez141)
+Statistics          --> Joan Giralt (joangi96)
+Visualization       --> Sergio Granados (slevinskygra)
+Makefile            --> Asier Zabalo (azabaloa)
 
 
 
@@ -19,8 +19,8 @@ ARCHIVOS EN EL REPOSITORIO
 
 El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en este repositorio:
 
-1. initialize.f90
-   --------------
+1. sub_initialize.f90
+   ------------------
    En este archivo se encuentran 2 subrutinas diferentes:
    i) initialize_r  :: inicializa las posiciones siguiendo una estrucutura FCC de acuerdo a la
                        densidad que se indique como input.
@@ -28,12 +28,12 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
                        temperatura deseada y manteniendo el momento lineal total nulo.
 
 
-2. periodic.f90
-   ------------
+2. sub_periodic.f90
+   ----------------
    i) PBC :: impone las condiciones periodicas de contorno a las posciones de las particulas.
 
 
-3. Fuerzas.f90
+3. sub_fuerzas.f90
    -----------
    i) forces :: calcula las fuerzas que actuan sobre cada particula (interaccion Lennard-Jones)
                 ademas de la presion total y las energias cinetica y potencial.
@@ -50,18 +50,18 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
                         para el termostato de andersen)
 
 
-5. GR_SUBROUTINE.f90
-   -----------------
+5. sub_gr.f90
+   ----------
    i) gr :: calcula la funcion de distribucion radial para una configuracion r(N,3)
 
 
-6. MEANSQUAREDISP_SUBROUTINE.f90
-   -----------------------------
+6. sub_meansquare.f90
+   ------------------
    i) MSDISPLACEMENT :: calcula el mean square displacement en el instate t, respecto a una
                         configuracion de referencia
 
 
-7. BINNING.f90
+7. binning.f90
    -----------
    Modulo en el que se utiliza la tecnica de binning para calcular la media y error estadistico de
    las magnitudes calculadas en el programa principal.
@@ -73,7 +73,7 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
    parametros de Lennard-Jones, masa, temperatura, numero de particulas, etc.
 
 
-8. main.f90
+9. main.f90
    --------
    Programa princial.
    Se empieza leyendo los datos del archivo input.txt.
@@ -82,14 +82,24 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
    Por ultimo se cambia la temperatura a la original y se hace la simulacion para obtener los datos.
 
 
-9. .gnuplot
-   --------
-   Instruciones para realizar los graficos necesarios en gnuplot.
+10. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu
+    ---------------------------------------------
+   Instruciones para realizar los graficos necesarios en gnuplot para a) las energias potencial y
+   cinetica, b) la presion y temperatura y c) la funncion de distribucion radial y mean square
+   displacement.
 
 
-10. Makefile
+11. Makefile
     --------
    Makefile para correr los compilar el programa, correr los calculos y hacer los graficos (ver abajo)
+
+
+
+----------
+RESULTADOS
+----------
+
+En la carpeta RESULTADOS se encuentran los resultados obtenidos en la simuacion.
 
 
 
@@ -97,9 +107,10 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
 COMO REPRODUCIR LOS RESULTADOS
 ------------------------------
 
-
-
-----------
-RESULTADOS
-----------
-En la carpeta RESULTADOS se encuentras los resultados obtenidos en la simuacion.
+En el archivo input.txt se especifican todos los parametros necesarios para reproducir los resultados
+que se han añadido en el repositorio.
+Solo se debe ejecutar el comando 'make plot' para compilar, ejecutar y dibujar los resultados
+directamente.
+En esta primera entrega del trabajo no se ha ejecutado el codigo 'binning.f90' ya que el analisis
+estadistico se hara para la memoria escrita (por lo que de momento tampoco se ha incluido en el 
+Makefile tampoco).
