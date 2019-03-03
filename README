@@ -1,8 +1,105 @@
-COORDINACION :: Jon Lopez (jlopez141)
+------------------------
+DISTRIBUCION DEL TRABAJO
+------------------------
 
+Coordinacion        -> Jon Lopez (jlopez141)
 Intial state        -> Asier Zabalo (azabaloa)
 Boundary Conditions -> Didac Marti (dmarti1995)
 Forces              -> Manuel Canovas (ManuelC1996)
 Integration         -> Jon Lopez (jlopez141)
 Statistics          -> Joan Giralt (joangi96)
 Visualization       -> Sergio Granados (slevinskygra)
+Makefile            -> Asier Zabalo (azabaloa)
+
+
+
+--------------------------
+ARCHIVOS EN EL REPOSITORIO
+--------------------------
+
+El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en este repositorio:
+
+1. initialize.f90
+   --------------
+   En este archivo se encuentran 2 subrutinas diferentes:
+   i) initialize_r  :: inicializa las posiciones siguiendo una estrucutura FCC de acuerdo a la
+                       densidad que se indique como input.
+   ii) initialize_v :: inicializa las velocidades para que la energia cinetica se adapte a la
+                       temperatura deseada y manteniendo el momento lineal total nulo.
+
+
+2. periodic.f90
+   ------------
+   i) PBC :: impone las condiciones periodicas de contorno a las posciones de las particulas.
+
+
+3. Fuerzas.f90
+   -----------
+   i) forces :: calcula las fuerzas que actuan sobre cada particula (interaccion Lennard-Jones)
+                ademas de la presion total y las energias cinetica y potencial.
+
+
+4. sub_integrate.f90
+   -----------------
+   Contiene 3 subrutinas:
+   i) v_verlet_step  :: calcula las posiciones y velocidades en el siguiente instante de tiempo
+                        integrando las ecuaciones de movimiento mediante el algoritmo de 
+                        velocity verlet.
+   ii) thermostat    :: implementacion del termostato de Andersen
+   iii) normal_distr :: generador de numeros aleatorios con distribucion gausiana(se utiliza
+                        para el termostato de andersen)
+
+
+5. GR_SUBROUTINE.f90
+   -----------------
+   i) gr :: calcula la funcion de distribucion radial para una configuracion r(N,3)
+
+
+6. MEANSQUAREDISP_SUBROUTINE.f90
+   -----------------------------
+   i) MSDISPLACEMENT :: calcula el mean square displacement en el instate t, respecto a una
+                        configuracion de referencia
+
+
+7. BINNING.f90
+   -----------
+   Modulo en el que se utiliza la tecnica de binning para calcular la media y error estadistico de
+   las magnitudes calculadas en el programa principal.
+
+
+8. input.txt
+   ---------
+   Archivo de texto que contiene los diferentes parametros necesarios para hacer los calculos:
+   parametros de Lennard-Jones, masa, temperatura, numero de particulas, etc.
+
+
+8. main.f90
+   --------
+   Programa princial.
+   Se empieza leyendo los datos del archivo input.txt.
+   A continuacion se inicializa el sistema de acuerdo a la densidad requerida.
+   Se hace una breve simulacion a alta temperatura para conseguir una estructura de un fluido.
+   Por ultimo se cambia la temperatura a la original y se hace la simulacion para obtener los datos.
+
+
+9. .gnuplot
+   --------
+   Instruciones para realizar los graficos necesarios en gnuplot.
+
+
+10. Makefile
+    --------
+   Makefile para correr los compilar el programa, correr los calculos y hacer los graficos (ver abajo)
+
+
+
+------------------------------
+COMO REPRODUCIR LOS RESULTADOS
+------------------------------
+
+
+
+----------
+RESULTADOS
+----------
+En la carpeta RESULTADOS se encuentras los resultados obtenidos en la simuacion.
