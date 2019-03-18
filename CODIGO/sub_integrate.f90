@@ -1,23 +1,42 @@
-subroutine v_verlet_step (dim,N, r, v, t, dt, Rcut, L, F, press, Epot, Ekin,celllist,ipc,ncells)
+! INTEGRACION: VELOCITY VERLET
+! ----------------------------
+
+! INPUT:
+!       + N      :: Numero de particulas
+!       + dt     :: paso de tiempo
+!       + Rcut   :: cut-off radio de las interacciones
+!       + L      :: lado de la caja
+! INPUT y OUTPUT:
+!       + r(N,3) :: posiciones de las particulas
+!       + v(N,3) :: velocidades en el instante t
+!       + F(N,3) :: fuerzas sobre cada particula (Entra la fuerza a tiempo t y sale la fuerza a t+dt)
+!       + t      :: tiempo
+! OUTPUT:
+!       + press  :: presion
+!       + Epot   :: energia potencial
+!       + Ekin   :: energia cinetica
+
+subroutine v_verlet_step (N, r, v, t, dt, Rcut, L, F, press, Epot, Ekin)
 implicit none
-integer :: ipc(N,dim+1),ncells(3)
 real, intent(inout) :: r(N,3), v(N,3), F(N,3), t
 real, intent(in)    :: dt, Rcut, L
-integer, intent(in) :: celllist(0:10,ncells(1),ncells(2),ncells(3)),dim
 real, intent(out)   :: press, Epot, Ekin
-integer             :: N
+integer, intent(in) :: N
 
 r = r + v*dt + 0.5*F*dt**2
 v = v + 0.5*F*dt
 
-call force (dim,N, L, Rcut, r, v, F, press, Epot, Ekin,celllist,ipc,ncells)
+call force (N, L, Rcut, r, v, F, press, Epot, Ekin)
 v = v + 0.5*F*dt
 
 t = t + dt
 
-
 end subroutine v_verlet_step
 
+
+
+! TERMOSTATO DE ANDERSEN
+! ----------------------
 
 subroutine thermostat (N, v, nu, temperature)
 implicit none
@@ -40,6 +59,10 @@ enddo
 
 end subroutine thermostat
 
+
+
+! GENERADOR DE DISTRIBUCION GAUSSIANA
+! -----------------------------------
 
 subroutine normal_distr(mu, sigma, z1, z2)
 implicit none 
