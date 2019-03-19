@@ -2,11 +2,15 @@ program DinMo
 
 implicit none
 
+include 'mpif.h'
+
 real, allocatable :: pos(:,:),vel(:,:),f_par(:,:)
 real, allocatable :: grad(:),posini(:,:),gmean(:)
 real              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,mass,sigma,length2
 real              :: utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt, p_mean
 integer           :: npar, dim,ii,timesteps,outg,oute,equi,nbox
+integer              :: taskid, numproc, ierror, partition
+integer, allocatable :: table_index(:,:)
 
 
 open(1,file='input.txt',status='old')   !Input file
@@ -70,6 +74,25 @@ tmelt = 100.0 * tbath
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
+
+
+! -------------------------
+! INTIALIZE MPI ENVIRONMENT
+! -------------------------
+call MPI_INIT(ierror)
+call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,ierror)
+call MPI_COMM_SIZE(MPI_COMM_WORLD,numproc,ierror)
+
+! Tabla con los indices de los atomos que corresponden a cada worker
+allocate(table_index(0:numproc-1,2))
+partition = npar/numproc
+do ii = 0, numproc-2
+  table_index(ii,1) = ii*partition+1
+  table_index(ii,2) = (ii+1)*partition
+enddo
+ii = numproc-1
+table_index(ii,1) = ii*partition+1
+table_index(ii,2) = npar
 
 
 ! Initialisation of the system velocity and position
@@ -149,6 +172,7 @@ do ii = 1, timesteps
 
 enddo
 
+call MPI_FINALIZE(ierror)
 
 ! End of simulation: Now we write the radial distribution function
 
