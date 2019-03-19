@@ -1,7 +1,7 @@
-SUBROUTINE PBC(nat,L,X,table,nproc,taskid) !Periodic boundary conditions
+SUBROUTINE PBC(nat,L,X,table,numproc,taskid) !Periodic boundary conditions
 implicit none
-integer :: nat,ii,jj,numproc,taskid,
-integer :: table(0:nproc-1,2),imin,imax
+integer :: nat,ii,jj,numproc,taskid
+integer :: table(0:numproc-1,2),imin,imax
 real    :: L, X(nat,3)
 imin=table(taskid,1)
 imax=table(taskid,2)
