@@ -10,7 +10,9 @@ real              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,ma
 real              :: utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt, p_mean
 integer           :: npar, dim,ii,timesteps,outg,oute,equi,nbox
 integer              :: taskid, numproc, ierror, partition
+integer, allocatable :: pairindex(:,:)
 integer, allocatable :: table_index(:,:)
+integer           :: i,j
 
 
 open(1,file='input.txt',status='old')   !Input file
@@ -38,10 +40,21 @@ read(1,*) nbox          ! number of positions to calculate radial distribution f
     ! vel(npar,dim) --------> velocities at time t
     ! fpar(npar,dim) -------> calculation of forces acting on each particle
     ! posini(npar,dim) -----> fixed position to calculate mean square displacement
-
+    ! pairindex((npar*(npar-1))/2,2) ----> vector of pairs of particles
 allocate(pos(npar,dim),vel(npar,dim),f_par(npar,dim),posini(npar,dim))   !allocation of variables
 allocate(grad(nbox),gmean(nbox))
+allocate(pairindex((npar*(npar-1))/2,2))
 
+!Define vector of pairs of particles
+ii = 1
+do i = 1,npar-1
+    do j = i+1,npar
+        pairindex(ii,:) = (/i,j/)
+        ii = ii + 1
+    enddo
+enddo
+
+print*, pairindex
 
 ! Files where data will be saved:
 ! Units output: time --> ps, energy --> J/mol, temperature --> Kelvin, pressure --> Atmospheres
