@@ -9,10 +9,18 @@ real, allocatable :: grad(:),posini(:,:),gmean(:)
 real              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,mass,sigma,length2
 real              :: utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt, p_mean
 integer           :: npar, dim,ii,timesteps,outg,oute,equi,nbox
-integer              :: taskid, numproc, ierror, partition
+integer              :: taskid, numproc, ierror, partition1,partition2
 integer, allocatable :: pairindex(:,:)
-integer, allocatable :: table_index(:,:)
+integer, allocatable :: table_index1(:,:),table_index2(:,:)
 integer           :: i,j
+
+
+! -------------------------
+! INTIALIZE MPI ENVIRONMENT
+! -------------------------
+call MPI_INIT(ierror)
+call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,ierror)
+call MPI_COMM_SIZE(MPI_COMM_WORLD,numproc,ierror)
 
 
 open(1,file='input.txt',status='old')   !Input file
@@ -54,14 +62,13 @@ do i = 1,npar-1
     enddo
 enddo
 
-print*, pairindex
-
 ! Files where data will be saved:
 ! Units output: time --> ps, energy --> J/mol, temperature --> Kelvin, pressure --> Atmospheres
-
-open(10,file='data_EK_EP_T_P.dat',status='unknown')
-open(20,file='mean_square_disp.dat',status='unknown')
-open(30,file='rad_dist_func.dat',status='unknown')
+if (taskid == 0) then
+    open(10,file='data_EK_EP_T_P.dat',status='unknown')
+    open(20,file='mean_square_disp.dat',status='unknown')
+    open(30,file='rad_dist_func.dat',status='unknown')
+endif
 
 
 ! Calculation of the magnitudes in reduced units
@@ -88,24 +95,24 @@ tmelt = 100.0 * tbath
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
 
-
-! -------------------------
-! INTIALIZE MPI ENVIRONMENT
-! -------------------------
-call MPI_INIT(ierror)
-call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,ierror)
-call MPI_COMM_SIZE(MPI_COMM_WORLD,numproc,ierror)
+!DIVISIÓN DE LA INFORMACIÓN POR WORKERS
 
 ! Tabla con los indices de los atomos que corresponden a cada worker
-allocate(table_index(0:numproc-1,2))
-partition = npar/numproc
+allocate(table_index1(0:numproc-1,2))
+allocate(table_index2(0:numproc-1,2))
+partition1 = npar/numproc
+partition2 = (npar*(npar-1)/2)/numproc
 do ii = 0, numproc-2
-  table_index(ii,1) = ii*partition+1
-  table_index(ii,2) = (ii+1)*partition
+  table_index1(ii,1) = ii*partition1+1
+  table_index2(ii,1) = ii*partition2+1
+  table_index1(ii,2) = (ii+1)*partition1
+  table_index2(ii,2) = (ii+1)*partition2
 enddo
 ii = numproc-1
-table_index(ii,1) = ii*partition+1
-table_index(ii,2) = npar
+table_index1(ii,1) = ii*partition1+1
+table_index2(ii,1) = ii*partition2+1
+table_index1(ii,2) = npar
+table_index2(ii,2) = npar*(npar-1)/2
 
 
 ! Initialisation of the system velocity and position
