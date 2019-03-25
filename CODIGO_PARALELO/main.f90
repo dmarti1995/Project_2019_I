@@ -5,7 +5,7 @@ implicit none
 include 'mpif.h'
 
 real, allocatable :: pos(:,:),vel(:,:),f_par(:,:)
-real, allocatable :: grad(:),posini(:,:),gmean(:)
+real, allocatable :: grad(:),posini(:,:),gmean(:),gmean_total(:)
 real              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,mass,sigma,length2
 real              :: utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt, p_mean
 integer           :: npar, dim,ii,timesteps,outg,oute,equi,nbox
@@ -50,7 +50,7 @@ read(1,*) nbox          ! number of positions to calculate radial distribution f
     ! posini(npar,dim) -----> fixed position to calculate mean square displacement
     ! pairindex((npar*(npar-1))/2,2) ----> vector of pairs of particles
 allocate(pos(npar,dim),vel(npar,dim),f_par(npar,dim),posini(npar,dim))   !allocation of variables
-allocate(grad(nbox),gmean(nbox))
+allocate(grad(nbox),gmean(nbox),gmean_total(nbox))
 allocate(pairindex((npar*(npar-1))/2,2))
 
 !Define vector of pairs of particles
@@ -172,7 +172,7 @@ do ii = 1, timesteps
     call thermostat (npar, vel, nu, Tbath)
     
     if (mod(ii,oute).eq.0) then
-        write(10,'(5f20.8,i12)')  time*utime, ekin*eps, epot*eps, tcalc*utemp, press*upress, ii
+        !write(10,'(5f20.8,i12)')  time*utime, ekin*eps, epot*eps, tcalc*utemp, press*upress, ii
     endif
 
     tcalc = 2.0 * Ekin / (3.0*npar)
@@ -182,25 +182,32 @@ do ii = 1, timesteps
         
         conteg = conteg + 1.0                  
         
-        call msdisplacement(npar,dim,posini,pos,length,meansq)
-        call gr(npar,dim,rho,length,pos,1.0*length,nbox,grad,dgr)
-        write(20,*) time * utime, meansq * sigma**2.0
-      
-        gmean(:) = gmean(:) + grad(:)       
+        call msdisplacement(numproc,taskid,table_index1,npar,dim,posini,pos,length,meansq)
+        call gr(numproc,taskid,table_index2,pairindex,npar,dim,rho,length,pos,1.0*length,nbox,grad,dgr)
+        if (taskid == 0) then
+            write(20,*) time * utime, meansq * sigma**2.0
+            print*,ii
+        endif
+
+        gmean = gmean + grad      
     
     endif
 
 enddo
 
-call MPI_FINALIZE(ierror)
+call MPI_REDUCE(gmean,gmean_total,size(gmean),MPI_REAL,MPI_SUM,0,MPI_COMM_WORLD,ierror)
 
-! End of simulation: Now we write the radial distribution function
 
+!End of simulation: Now we write the radial distribution function
+if (taskid == 0) then
 do ii = 1, nbox
 
-    write(30,*) sigma * dgr * real(ii), gmean(ii) / conteg
+    write(30,*) sigma * dgr * real(ii), gmean_total(ii) / conteg
 
 enddo
+endif
+
+call MPI_FINALIZE(ierror)
 
 end
 
