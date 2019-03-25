@@ -1,8 +1,9 @@
 program DinMo
 
+use mpi
+
 implicit none
 
-include 'mpif.h'
 
 real, allocatable :: pos(:,:),vel(:,:),f_par(:,:)
 real, allocatable :: grad(:),posini(:,:),gmean(:),gmean_total(:)
@@ -14,6 +15,8 @@ integer, allocatable :: pairindex(:,:)
 integer, allocatable :: table_index1(:,:),table_index2(:,:)
 integer           :: i,j
 
+integer, allocatable :: displs(:), counts(:), index_local(:,:)
+integer              :: ini, ind_i, ind_j, partition_jon, max_length
 
 ! -------------------------
 ! INTIALIZE MPI ENVIRONMENT
@@ -115,6 +118,36 @@ table_index1(ii,2) = npar
 table_index2(ii,2) = npar*(npar-1)/2
 
 
+! ------------------------------------------------------------------------
+
+! DIVISION TRABAJO: SUBRUTINA INTEGRACION
+partition_jon  = 3*npar/numproc                    
+max_length = partition_jon + mod(3*npar,numproc)   
+
+allocate(displs(numproc), counts(numproc), index_local(numproc,2))
+
+do i = 1, numproc
+  displs(i) = (i-1)*partition_jon
+  
+  ini = displs(i) + 1
+
+  ind_i = mod(ini, npar)
+  ind_j = ini/npar + 1
+  if (ind_i == 0) then
+    ind_i = npar
+    ind_j = ind_j - 1
+  endif
+  index_local(i,1) = ind_i
+  index_local(i,2) = ind_j
+
+enddo
+counts          = partition_jon
+counts(numproc) = max_length
+
+! ------------------------------------------------------------------------
+
+
+
 ! Initialisation of the system velocity and position
 
 call initialize_r(pos,rho,Npar,length)
@@ -131,7 +164,8 @@ time=0.0
 do ii=1,equi
 
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
-    call v_verlet_step (npar, pos, vel, time, dt, rc, length, f_par,press,epot,ekin)
+    call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
+                        numproc, taskid, max_length, displs, counts, index_local, ierror)
     call PBC(npar, length, pos)
     call thermostat (npar, vel, nu, Tmelt)
 
@@ -147,7 +181,8 @@ time = 0.0
 
 do ii = 1, equi
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
-    call v_verlet_step (npar, pos, vel, time, dt, rc, length, f_par,press,epot,ekin)
+    call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
+                        numproc, taskid, max_length, displs, counts, index_local, ierror)
     call PBC(npar, length, pos)
     call thermostat (npar, vel, nu, Tbath)
 enddo
@@ -167,7 +202,8 @@ p_mean = 0.0
 do ii = 1, timesteps
     
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
-    call v_verlet_step (npar, pos, vel, time, dt, rc, length, f_par,press,epot,ekin)
+    call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
+                        numproc, taskid, max_length, displs, counts, index_local, ierror)
     call PBC(npar, length, pos)
     call thermostat (npar, vel, nu, Tbath)
     
