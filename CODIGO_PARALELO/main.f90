@@ -87,13 +87,13 @@ tmelt = 100.0 * tbath
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
 ! DESCOMENTAR ESTO PARA HACER EL CALCULO DEL ARGON QUE HACIAMOS EN MOMO
-!eps   = 998.0
-!sigma = 3.4
-!rho   = 0.8
-!mass  = 40.0
-!Tbath = 10.0
-!Pext  = 2.5
-!tmelt = 100.0 * tbath
+eps   = 998.0
+sigma = 3.4
+rho   = 0.8
+mass  = 40.0
+Tbath = 10.0
+Pext  = 2.5
+tmelt = 100.0 * tbath
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
@@ -166,7 +166,8 @@ do ii=1,equi
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
     call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
                         numproc, taskid, max_length, displs, counts, index_local, ierror)
-    call PBC(npar, length, pos)
+    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
+         max_length,ierror)
     call thermostat (npar, vel, nu, Tmelt)
 
 enddo
@@ -184,7 +185,8 @@ do ii = 1, equi
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
     call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
                         numproc, taskid, max_length, displs, counts, index_local, ierror)
-    call PBC(npar, length, pos)
+    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
+         max_length,ierror)
     call thermostat (npar, vel, nu, Tbath)
 enddo
 
@@ -205,7 +207,8 @@ do ii = 1, timesteps
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
     call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
                         numproc, taskid, max_length, displs, counts, index_local, ierror)
-    call PBC(npar, length, pos)
+    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
+         max_length,ierror)
     call thermostat (npar, vel, nu, Tbath)
     
     if (mod(ii,oute).eq.0) then
