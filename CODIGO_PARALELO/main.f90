@@ -151,7 +151,7 @@ counts(numproc) = max_length
 ! Initialisation of the system velocity and position
 
 call initialize_r(pos,rho,Npar,length)
-call initialize_v(vel,Tmelt,Npar)
+call initialize_v(vel,Tmelt,Npar,numproc,taskid,ierror)
 
 ! Cutoff radio as a funtion of the length of the box
 rc = 0.48*length
@@ -173,7 +173,8 @@ enddo
 
 ! Reinitialize velocities according to the bath temperature
 
-call initialize_v(vel,tbath,Npar)
+call initialize_v(vel,Tmelt,Npar,numproc,taskid,ierror)
+
 
 ! Equilibrate with real bath temperature
 
@@ -208,7 +209,7 @@ do ii = 1, timesteps
     call thermostat (npar, vel, nu, Tbath)
     
     if (mod(ii,oute).eq.0) then
-        !write(10,'(5f20.8,i12)')  time*utime, ekin*eps, epot*eps, tcalc*utemp, press*upress, ii
+        write(10,'(5f20.8,i12)')  time*utime, ekin*eps, epot*eps, tcalc*utemp, press*upress, ii
     endif
 
     tcalc = 2.0 * Ekin / (3.0*npar)
