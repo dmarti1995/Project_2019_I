@@ -173,7 +173,7 @@ do ii=1,equi
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
     call v_verlet_pbc_therm (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
                              numproc, taskid, max_length, displs, counts, index_local, ierror,&
-                             tbath, nu)
+                             tmelt, nu)
 
 !  Everyone worked on their subrutine but we mixed with the v_verlet_step in order to avoid comunications
 !    call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
