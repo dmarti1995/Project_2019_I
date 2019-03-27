@@ -172,11 +172,13 @@ do ii=1,equi
 
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
     call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
-                        numproc, taskid, max_length, displs, counts, index_local, ierror)
-    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
-         max_length,ierror)
-    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
-         displs, counts, index_local, ierror)
+                        numproc, taskid, max_length, displs, counts, index_local, ierror,&
+                        tbath,nu)
+!  Everyone worked on their subrutine but we mixed with the v_verlet_step in order to avoid comunications
+!    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
+!         max_length,ierror)
+!    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
+!         displs, counts, index_local, ierror)
 
 enddo
 
@@ -192,11 +194,12 @@ time = 0.0
 do ii = 1, equi
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
     call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
-                        numproc, taskid, max_length, displs, counts, index_local, ierror)
-    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
-         max_length,ierror)
-    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
-    displs, counts, index_local, ierror)
+                        numproc, taskid, max_length, displs, counts, index_local, ierror, &
+                        tbath,nu)
+!    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
+!         max_length,ierror)
+!    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
+!    displs, counts, index_local, ierror)
 enddo
 
 
@@ -215,11 +218,12 @@ do ii = 1, timesteps
     
     call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
     call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
-                        numproc, taskid, max_length, displs, counts, index_local, ierror)
-    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
-         max_length,ierror)
-    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
-    displs, counts, index_local, ierror)
+                        numproc, taskid, max_length, displs, counts, index_local, ierror,&
+                        tbath,nu)
+!    call PBC(npar,length,pos,numproc,taskid,counts,displs,&
+!         max_length,ierror)
+!    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
+!    displs, counts, index_local, ierror)
     
     if (mod(ii,oute).eq.0) then
         write(10,'(5f20.8,i12)')  time*utime, ekin*eps, epot*eps, tcalc*utemp, press*upress, ii
