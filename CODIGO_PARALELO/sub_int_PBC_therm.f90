@@ -16,7 +16,8 @@
 !       + Epot   :: energia potencial
 !       + Ekin   :: energia cinetica
 
-subroutine v_verlet_pbc_therm (N, r, v, t, dt, Rcut, L, F, press, Epot, Ekin, &
+subroutine v_verlet_pbc_therm (table_index2,pairindex,dim,&
+                               N, r, v, t, dt, Rcut, L, F, press, Epot, Ekin, &
                                numproc, taskid, max_length, displs, counts, index_local,ierror,&
                                temperature, nu)
 use mpi
@@ -25,8 +26,8 @@ implicit none
 real, intent(inout)         :: r(N,3), v(N,3), F(N,3), t
 real, intent(in)            :: dt, Rcut, L, temperature, nu
 real, intent(out)           :: press, Epot, Ekin
-integer, intent(in)         :: N
-integer, intent(in)         :: numproc, taskid, max_length
+integer, intent(in)         :: N,table_index2(0:numproc-1,2),pairindex(N*(N-1)/2,2)
+integer, intent(in)         :: numproc, taskid, max_length,dim
 integer, intent(in)         :: displs(numproc), counts(numproc), index_local(numproc,2)
 integer, intent(inout)      :: ierror
 real, dimension(max_length) :: local_r, local_v, local_f
@@ -63,7 +64,7 @@ call MPI_ALLGATHERV (local_r, my_N_elem, MPI_REAL,  &
 
 
 ! CALCULO FUERZAS
-call force (N, L, Rcut, r, v, F, press, Epot, Ekin)
+call force(numproc,taskid,table_index2,N,Pairindex,dim,L,Rcut,r,v,F,epot)
 
 
 ! CREAR SUBVECTOR LOCAL FUERZAS
