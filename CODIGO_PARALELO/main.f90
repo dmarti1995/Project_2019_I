@@ -14,7 +14,8 @@ integer              :: taskid, numproc, ierror, partition1,partition2
 integer, allocatable :: pairindex(:,:)
 integer, allocatable :: table_index1(:,:),table_index2(:,:)
 integer           :: i,j
-
+integer, allocatable :: seed(:)
+integer :: nseed
 integer, allocatable :: displs(:), counts(:), index_local(:,:)
 integer              :: ini, ind_i, ind_j, partition_jon, max_length
 
@@ -43,6 +44,12 @@ read(1,*) tbath         ! thermal bath temperature, In kelvin
 read(1,*) pext          ! system pressure, in atm
 read(1,*) oute,outg     ! number of timesteps to measure g(r) and MSD
 read(1,*) nbox          ! number of positions to calculate radial distribution function
+
+
+
+call random_seed(size = nseed) !initialisation of a random seed for each processor
+allocate(seed(nseed))
+call random_seed(get=seed)
 
 
 ! Alocation of main variables:
@@ -168,7 +175,8 @@ do ii=1,equi
                         numproc, taskid, max_length, displs, counts, index_local, ierror)
     call PBC(npar,length,pos,numproc,taskid,counts,displs,&
          max_length,ierror)
-    call thermostat (npar, vel, nu, Tmelt)
+    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
+         displs, counts, index_local, ierror)
 
 enddo
 
@@ -187,7 +195,8 @@ do ii = 1, equi
                         numproc, taskid, max_length, displs, counts, index_local, ierror)
     call PBC(npar,length,pos,numproc,taskid,counts,displs,&
          max_length,ierror)
-    call thermostat (npar, vel, nu, Tbath)
+    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
+    displs, counts, index_local, ierror)
 enddo
 
 
@@ -209,7 +218,8 @@ do ii = 1, timesteps
                         numproc, taskid, max_length, displs, counts, index_local, ierror)
     call PBC(npar,length,pos,numproc,taskid,counts,displs,&
          max_length,ierror)
-    call thermostat (npar, vel, nu, Tbath)
+    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
+    displs, counts, index_local, ierror)
     
     if (mod(ii,oute).eq.0) then
         write(10,'(5f20.8,i12)')  time*utime, ekin*eps, epot*eps, tcalc*utemp, press*upress, ii

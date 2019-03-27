@@ -90,26 +90,59 @@ end subroutine v_verlet_step
 ! TERMOSTATO DE ANDERSEN
 ! ----------------------
 
-subroutine thermostat (N, v, nu, temperature)
+subroutine thermostat (N, v, nu, temperature,numproc,taskid,max_length, &
+displs, counts, index_local, ierror)
+use mpi
 implicit none
 real, intent(inout) :: v(N,3)
 real, intent(in)    :: nu, temperature
-integer, intent(in) :: N
-real                :: u, z1, z2
-integer             :: i, j
+integer, intent(in) :: N,numproc,taskid
+integer, intent(in)         :: max_length
+integer, intent(in)         :: displs(numproc), counts(numproc), index_local(numproc,2)
+real, dimension(max_length) :: local_r, local_v, local_f
 
-do i = 1, N
-  call random_number(u)
-  if (u < nu) then
-    call normal_distr(0.0, sqrt(temperature), z1, z2)
-    v(i,1) = z1
-    v(i,2) = z2
-    call normal_distr(0.0, sqrt(temperature), z1, z2)
-    v(i,3) = z1
-  endif
+integer ::             request(numproc),ierror,stat(MPI_STATUS_SIZE),partner
+real                :: u, z1, z2
+integer             :: i, j,my_N_elem,k
+
+
+
+my_N_elem = counts(taskid+1)
+
+i = index_local(taskid+1, 1)
+j = index_local(taskid+1, 2)
+
+
+!do i = 1, N
+do k=1,my_N_elem         !each
+    local_v(k) = v(i,j)
+    call random_number(u)
+    if (u < nu) then
+        call normal_distr(0.0, sqrt(temperature), z1, z2)
+        local_v(k) = z1                  !changing velocities to a gaussian distribution, randomly
+        local_v(k) = z2
+        call normal_distr(0.0, sqrt(temperature), z1, z2)
+        local_v(k) = z1
+    endif
+
+    i = i + 1
+    if (i > N) then
+        i = 1
+        j = j + 1
+    endif
+
+
 enddo
 
+
+call MPI_ALLGATHERV (local_v, my_N_elem, MPI_REAL,  &
+v, counts, displs, MPI_REAL,   &
+MPI_COMM_WORLD, ierror)
+
+
+
 end subroutine thermostat
+
 
 
 
