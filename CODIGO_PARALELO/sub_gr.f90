@@ -78,3 +78,72 @@ enddo
 return
 end subroutine gr
 !------------------------------------------------------------------------
+
+
+!------------------------------------------------------------------------
+subroutine gr2(numproc,taskid,table_index2,pairindex,N,dim,L,COORD,rmax,ncajas,Histogram,dr)
+!N(in); numero de part
+!dim(in): dimension sistema
+!density(in): system density
+!L(in): system length
+!COORD(in): vector of the positions of the system
+!rmax(in): radio máximo hasta el que se calcula g(r)
+!ncajas(in): number of r points in which the g(r) is computed
+!g(out): vector g(ncajas) of this time step
+!dr(out): valor del intervalo dr
+  USE MPI
+implicit none
+integer,intent(in):: numproc,taskid,table_index2(0:numproc-1,2),pairindex((N*(N-1))/2,2)
+integer,intent(in):: N,dim
+real,intent(in):: L
+real,intent(in):: COORD(N,dim)
+real,intent(in):: rmax 
+integer,intent(in):: ncajas
+integer,intent(out):: Histogram(ncajas)
+integer:: caja
+real:: dr
+integer:: Nx,Ny,Nz
+integer:: i,j
+real:: r(3),rL(3)
+real:: R2,R2_caja
+integer:: imin,imax,cont
+
+imin = table_index2(taskid,1)
+imax = table_index2(taskid,2)
+
+
+dr = rmax/dble(ncajas)
+
+
+Histogram = 0
+
+!Study the selected particles
+
+do cont= imin,imax
+i = pairindex(cont,1)
+j = pairindex(cont,2)
+!print*,i,j,cont
+		r = (COORD(j,:)-COORD(i,:))
+!We study our box and the nearest neighbour boxes
+	do Nx = -1,1
+		do Ny = -1,1
+			do Nz = -1,1
+!we make an histogram of all the images of the particle pairs.
+				rL = r + L*(/Nx,Ny,Nz/)
+				R2 = sqrt(sum(rL**2))
+				caja = int(r2/dr) + 1
+				if (caja<0) then
+					cycle
+				elseif(caja>ncajas) then
+					cycle
+				else
+				Histogram(caja) = Histogram(caja) + 2
+				endif
+			enddo
+		enddo
+	enddo
+enddo
+
+return
+end subroutine gr2
+!------------------------------------------------------------------------

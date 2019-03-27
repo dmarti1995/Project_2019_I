@@ -4,10 +4,13 @@ use mpi
 
 implicit none
 
-
+real,parameter:: pi = acos(-1.0)
+real,parameter:: con = (4.0/3.0)*pi
 real, allocatable :: pos(:,:),vel(:,:),f_par(:,:)
-real, allocatable :: grad(:),posini(:,:),gmean(:),gmean_total(:)
-real              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,mass,sigma,length2
+real, allocatable :: posini(:,:)!,grad(:),gmean(:),gmean_total(:)
+real, allocatable :: rdf(:)
+integer,allocatable  :: histo_instant(:), histo_final(:), histo_total(:)
+real              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,mass,sigma,length2,contint
 real              :: utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt, p_mean
 integer           :: npar, dim,ii,timesteps,outg,oute,equi,nbox
 integer              :: taskid, numproc, ierror, partition1,partition2
@@ -60,7 +63,9 @@ call random_seed(get=seed)
     ! posini(npar,dim) -----> fixed position to calculate mean square displacement
     ! pairindex((npar*(npar-1))/2,2) ----> vector of pairs of particles
 allocate(pos(npar,dim),vel(npar,dim),f_par(npar,dim),posini(npar,dim))   !allocation of variables
-allocate(grad(nbox),gmean(nbox),gmean_total(nbox))
+!allocate(grad(nbox),gmean(nbox),gmean_total(nbox))
+allocate(rdf(nbox))
+allocate(histo_instant(nbox), histo_final(nbox), histo_total(nbox))
 allocate(pairindex((npar*(npar-1))/2,2))
 
 !Define vector of pairs of particles
@@ -212,8 +217,9 @@ posini = pos
 contep = 0.0
 conteg = 0.0
 time   = 0.0
-gmean  = 0.0
+!gmean  = 0.0
 p_mean = 0.0
+histo_final = 0
 
 ! Loop of times where velocity-Verlet algorithm is called
 ! conteg : counts the times we call g(r) radial distribution function
@@ -249,26 +255,35 @@ do ii = 1, timesteps
         conteg = conteg + 1.0                  
         
         call msdisplacement(numproc,taskid,table_index1,npar,dim,posini,pos,length,meansq)
-        call gr(numproc,taskid,table_index2,pairindex,npar,dim,rho,length,pos,1.0*length,nbox,grad,dgr)
+        !call gr(numproc,taskid,table_index2,pairindex,npar,dim,rho,length,pos,1.0*length,nbox,grad,dgr)
+        call gr2(numproc,taskid,table_index2,pairindex,npar,dim,length,pos,1.0*length,nbox,histo_instant,dgr)
         if (taskid == 0) then
             write(20,*) time * utime, meansq * sigma**2.0
             print*,ii
         endif
 
-        gmean = gmean + grad      
+        !gmean = gmean + grad
+        histo_final = histo_final + histo_instant      
     
     endif
 
 enddo
 
-call MPI_REDUCE(gmean,gmean_total,size(gmean),MPI_REAL,MPI_SUM,0,MPI_COMM_WORLD,ierror)
-
+!call MPI_REDUCE(gmean,gmean_total,size(gmean),MPI_REAL,MPI_SUM,0,MPI_COMM_WORLD,ierror)
+call MPI_REDUCE(histo_final,histo_total,size(histo_final),MPI_INTEGER,MPI_SUM,0,MPI_COMM_WORLD,ierror)
 
 !End of simulation: Now we write the radial distribution function
 if (taskid == 0) then
-do ii = 1, nbox
 
-    write(30,*) sigma * dgr * real(ii), gmean_total(ii) / conteg
+
+contint = 0.0d0
+do ii = 1, nbox
+  !if (histo_total(ii)/=0) then
+    rdf(ii) =  dble(histo_total(ii))/(npar*(con*((contint+dgr)**3-(contint)**3))*rho) / conteg
+  !endif
+  contint = contint + dgr
+
+    write(30,*) sigma * dgr * real(ii), rdf(ii) !,gmean_total(ii) / conteg, rdf(ii)
 
 enddo
 endif
