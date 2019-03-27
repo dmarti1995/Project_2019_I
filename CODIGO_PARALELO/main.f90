@@ -175,8 +175,11 @@ time=0.0
 
 do ii=1,equi
 
-    call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
-    call v_verlet_pbc_therm (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
+    !call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
+    call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
+    call ekinpress(numproc,taskid,table_index1,Npar,dim,Length,pos,vel,F_par,ekin,press)
+    call v_verlet_pbc_therm (table_index2,pairindex,dim,&
+                             npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
                              numproc, taskid, max_length, displs, counts, index_local, ierror,&
                              tmelt, nu)
 
@@ -200,8 +203,10 @@ call initialize_v(vel,Tmelt,Npar,numproc,taskid,ierror)
 time = 0.0
 
 do ii = 1, equi
-    call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
-    call v_verlet_pbc_therm (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
+    call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
+    call ekinpress(numproc,taskid,table_index1,Npar,dim,Length,pos,vel,F_par,ekin,press)
+    call v_verlet_pbc_therm (table_index2,pairindex,dim,&
+                             npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
                              numproc, taskid, max_length, displs, counts, index_local, ierror,&
                              tbath, nu)
 !    call v_verlet_step (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
@@ -227,8 +232,10 @@ histo_final = 0
 
 do ii = 1, timesteps
     
-    call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
-    call v_verlet_pbc_therm (npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
+    call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
+    call ekinpress(numproc,taskid,table_index1,Npar,dim,Length,pos,vel,F_par,ekin,press)
+    call v_verlet_pbc_therm (table_index2,pairindex,dim,&
+                             npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
                              numproc, taskid, max_length, displs, counts, index_local, ierror,&
                              tbath, nu)
 
