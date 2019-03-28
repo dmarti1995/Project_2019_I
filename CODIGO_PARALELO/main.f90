@@ -173,10 +173,11 @@ rc = 0.48*length
 
 time=0.0
 
+!call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
+call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
+
 do ii=1,equi
 
-    !call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
-    call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
     call ekinpress(numproc,taskid,table_index1,Npar,dim,Length,pos,vel,F_par,ekin,press)
     call v_verlet_pbc_therm (table_index2,pairindex,dim,&
                              npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
@@ -203,7 +204,7 @@ call initialize_v(vel,Tmelt,Npar,numproc,taskid,ierror)
 time = 0.0
 
 do ii = 1, equi
-    call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
+
     call ekinpress(numproc,taskid,table_index1,Npar,dim,Length,pos,vel,F_par,ekin,press)
     call v_verlet_pbc_therm (table_index2,pairindex,dim,&
                              npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
@@ -231,8 +232,7 @@ histo_final = 0
 ! gmean  : accumulated distribution function
 
 do ii = 1, timesteps
-    
-    call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
+
     call ekinpress(numproc,taskid,table_index1,Npar,dim,Length,pos,vel,F_par,ekin,press)
     call v_verlet_pbc_therm (table_index2,pairindex,dim,&
                              npar, pos, vel, time, dt, Rc, Length, F_par, press, Epot, Ekin, &
@@ -266,7 +266,6 @@ do ii = 1, timesteps
         call gr2(numproc,taskid,table_index2,pairindex,npar,dim,length,pos,1.0*length,nbox,histo_instant,dgr)
         if (taskid == 0) then
             write(20,*) time * utime, meansq * sigma**2.0
-            print*,ii
         endif
 
         !gmean = gmean + grad
