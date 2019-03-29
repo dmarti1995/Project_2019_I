@@ -21,6 +21,7 @@ integer, allocatable :: seed(:)
 integer :: nseed
 integer, allocatable :: displs(:), counts(:), index_local(:,:)
 integer              :: ini, ind_i, ind_j, partition_jon, max_length
+real                 :: start,finish
 
 ! -------------------------
 ! INTIALIZE MPI ENVIRONMENT
@@ -28,6 +29,10 @@ integer              :: ini, ind_i, ind_j, partition_jon, max_length
 call MPI_INIT(ierror)
 call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,ierror)
 call MPI_COMM_SIZE(MPI_COMM_WORLD,numproc,ierror)
+
+if (taskid == 0) then
+  call CPU_TIME(start)
+endif
 
 
 open(1,file='input.txt',status='old')   !Input file
@@ -83,6 +88,7 @@ if (taskid == 0) then
     open(10,file='data_EK_EP_T_P.dat',status='unknown')
     open(20,file='mean_square_disp.dat',status='unknown')
     open(30,file='rad_dist_func.dat',status='unknown')
+    open(40,file='cpu_time.dat',status='unknown')
 endif
 
 
@@ -282,16 +288,19 @@ call MPI_REDUCE(histo_final,histo_total,size(histo_final),MPI_INTEGER,MPI_SUM,0,
 if (taskid == 0) then
 
 
-contint = 0.0d0
-do ii = 1, nbox
+  contint = 0.0d0
+  do ii = 1, nbox
   !if (histo_total(ii)/=0) then
     rdf(ii) =  dble(histo_total(ii))/(npar*(con*((contint+dgr)**3-(contint)**3))*rho) / conteg
   !endif
-  contint = contint + dgr
-
+    contint = contint + dgr
     write(30,*) sigma * dgr * real(ii), rdf(ii) !,gmean_total(ii) / conteg, rdf(ii)
+  enddo
 
-enddo
+  call CPU_TIME(finish)
+
+  write(40,*) "CPU TIME: " , finish-start, " s"
+
 endif
 
 call MPI_FINALIZE(ierror)
