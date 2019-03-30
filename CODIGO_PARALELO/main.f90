@@ -4,24 +4,25 @@ use mpi
 
 implicit none
 
-real,parameter:: pi = acos(-1.0)
-real,parameter:: con = (4.0/3.0)*pi
-real, allocatable :: pos(:,:),vel(:,:),f_par(:,:)
-real, allocatable :: posini(:,:)!,grad(:),gmean(:),gmean_total(:)
-real, allocatable :: rdf(:)
-integer,allocatable  :: histo_instant(:), histo_final(:), histo_total(:)
-real              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,mass,sigma,length2,contint
-real              :: utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt, p_mean
-integer           :: npar, dim,ii,timesteps,outg,oute,equi,nbox
-integer              :: taskid, numproc, ierror, partition1,partition2
-integer, allocatable :: pairindex(:,:)
-integer, allocatable :: table_index1(:,:),table_index2(:,:)
-integer           :: i,j
-integer, allocatable :: seed(:)
-integer :: nseed
-integer, allocatable :: displs(:), counts(:), index_local(:,:)
-integer              :: ini, ind_i, ind_j, partition_jon, max_length
-real                 :: start,finish
+integer, parameter    :: dp = 8
+real(dp),parameter    :: pi = acos(-1.0_dp)
+real(dp),parameter    :: con = (4.0_dp/3.0_dp)*pi
+real(dp), allocatable :: pos(:,:),vel(:,:),f_par(:,:)
+real(dp), allocatable :: posini(:,:)     !,grad(:),gmean(:),gmean_total(:)
+real(dp), allocatable :: rdf(:)
+integer,allocatable   :: histo_instant(:), histo_final(:), histo_total(:)
+real(dp)              :: rc,tbath,pext,press,ppot,rho,length,time,dt,nu,tcalc,eps,mass,sigma,length2,contint
+real(dp)              :: utime,utemp,upress,udens,epot,ekin,conteg,contep,meansq,interv,rho2,dgr,tmelt, p_mean
+integer               :: npar, dim,ii,timesteps,outg,oute,equi,nbox
+integer               :: taskid, numproc, ierror, partition1,partition2
+integer, allocatable  :: pairindex(:,:)
+integer, allocatable  :: table_index1(:,:),table_index2(:,:)
+integer               :: i,j
+integer, allocatable  :: seed(:)
+integer               :: nseed
+integer, allocatable  :: displs(:), counts(:), index_local(:,:)
+integer               :: ini, ind_i, ind_j, partition_jon, max_length
+real(dp)              :: start,finish
 
 ! -------------------------
 ! INTIALIZE MPI ENVIRONMENT
@@ -67,6 +68,7 @@ call random_seed(get=seed)
     ! fpar(npar,dim) -------> calculation of forces acting on each particle
     ! posini(npar,dim) -----> fixed position to calculate mean square displacement
     ! pairindex((npar*(npar-1))/2,2) ----> vector of pairs of particles
+
 allocate(pos(npar,dim),vel(npar,dim),f_par(npar,dim),posini(npar,dim))   !allocation of variables
 !allocate(grad(nbox),gmean(nbox),gmean_total(nbox))
 allocate(rdf(nbox))
@@ -99,19 +101,19 @@ rho   = rho   / udens
 pext  = pext  / upress
 tbath = tbath / utemp
 
-tmelt = 100.0 * tbath
+tmelt = 100.0_dp * tbath
 
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
 ! DESCOMENTAR ESTO PARA HACER EL CALCULO DEL ARGON QUE HACIAMOS EN MOMO
-eps   = 998.0
-sigma = 3.4
-rho   = 0.8
-mass  = 40.0
-Tbath = 10.0
-Pext  = 2.5
-tmelt = 100.0 * tbath
+eps   = 998.0_dp
+sigma = 3.4_dp
+rho   = 0.8_dp
+mass  = 40.0_dp
+Tbath = 10.0_dp
+Pext  = 2.5_dp
+tmelt = 100.0_dp * tbath
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
 ! ----------------------------------------------------------------------
@@ -172,12 +174,12 @@ call initialize_r(pos,rho,Npar,length)
 call initialize_v(vel,Tmelt,Npar,numproc,taskid,ierror)
 
 ! Cutoff radio as a funtion of the length of the box
-rc = 0.48*length
+rc = 0.48_dp*length
 
 
 ! Equilibration and melting of the system: We leave a certain number of timesteps to destroy initial order
 
-time=0.0
+time=0.0_dp
 
 !call force(npar,length,rc,pos,vel,f_par,press,epot,ekin)
 call force(numproc,taskid,table_index2,Npar,Pairindex,dim,Length,rc,pos,vel,F_par,epot)
@@ -207,7 +209,7 @@ call initialize_v(vel,Tmelt,Npar,numproc,taskid,ierror)
 
 ! Equilibrate with real bath temperature
 
-time = 0.0
+time = 0.0_dp
 
 do ii = 1, equi
 
@@ -226,12 +228,12 @@ enddo
 
 
 posini = pos
-contep = 0.0
-conteg = 0.0
-time   = 0.0
-!gmean  = 0.0
-p_mean = 0.0
-histo_final = 0
+contep = 0.0_dp
+conteg = 0.0_dp
+time   = 0.0_dp
+!gmean  = 0.0_dp
+p_mean = 0.0_dp
+histo_final = 0_dp
 
 ! Loop of times where velocity-Verlet algorithm is called
 ! conteg : counts the times we call g(r) radial distribution function
@@ -252,7 +254,7 @@ do ii = 1, timesteps
 !    call thermostat (npar, vel, nu, tbath,numproc,taskid,max_length, &
 !    displs, counts, index_local, ierror)
 
-    tcalc = 2.0 * Ekin / (3.0*npar)
+    tcalc = 2.0_dp * Ekin / (3.0_dp*npar)
     p_mean = p_mean + press
     
     if (taskid == 0) then
@@ -265,13 +267,13 @@ do ii = 1, timesteps
 
     if (mod(ii,outg).eq.0) then
         
-        conteg = conteg + 1.0                  
+        conteg = conteg + 1.0_dp              
         
         call msdisplacement(numproc,taskid,table_index1,npar,dim,posini,pos,length,meansq)
         !call gr(numproc,taskid,table_index2,pairindex,npar,dim,rho,length,pos,1.0*length,nbox,grad,dgr)
         call gr2(numproc,taskid,table_index2,pairindex,npar,dim,length,pos,1.0*length,nbox,histo_instant,dgr)
         if (taskid == 0) then
-            write(20,*) time * utime, meansq * sigma**2.0
+            write(20,*) time * utime, meansq * sigma**2.0_dp
         endif
 
         !gmean = gmean + grad
@@ -288,10 +290,10 @@ call MPI_REDUCE(histo_final,histo_total,size(histo_final),MPI_INTEGER,MPI_SUM,0,
 if (taskid == 0) then
 
 
-  contint = 0.0d0
+  contint = 0.0_dp
   do ii = 1, nbox
   !if (histo_total(ii)/=0) then
-    rdf(ii) =  dble(histo_total(ii))/(npar*(con*((contint+dgr)**3-(contint)**3))*rho) / conteg
+    rdf(ii) =  dble(histo_total(ii))/(npar*(con*((contint+dgr)**3.0_dp-(contint)**3.0_dp))*rho) / conteg
   !endif
     contint = contint + dgr
     write(30,*) sigma * dgr * real(ii), rdf(ii) !,gmean_total(ii) / conteg, rdf(ii)
@@ -319,12 +321,13 @@ end
 subroutine reduced_units(uener,mass,sigma,utime,utemp,upress,udens)
 
 implicit none
-real :: mass,sigma,utime,utemp,uener,upress,udens
+integer, parameter :: dp = 8
+real(dp)           :: mass,sigma,utime,utemp,uener,upress,udens
 
-upress = (uener/(sigma**3.0))*16.3886  !pressure in atm (J/mol)/A^3=10^30/6.022E23 Pa * 1atm/101325Pa
-utemp  = uener / 8.31                               ! temperature in Kelvin units (uener-->J/mol, 8.31---> J/(K·mol)
-udens  = (1.0 / 0.6022) * (sigma**3.0) / (mass)     ! 0.6022: factor (10^-8)^3*(6.022^10^(-23))
-utime  = sigma * sqrt((mass*1.0E-3)/uener) * 100.0  ! unit time in picoseconds
+upress = (uener/(sigma**3.0_dp))*16.3886_dp  !pressure in atm (J/mol)/A^3=10^30/6.022E23 Pa * 1atm/101325Pa
+utemp  = uener / 8.31_dp                               ! temperature in Kelvin units (uener-->J/mol, 8.31---> J/(K·mol)
+udens  = (1.0_dp / 0.6022_dp) * (sigma**3.0_dp) / (mass)     ! 0.6022: factor (10^-8)^3*(6.022^10^(-23))
+utime  = sigma * sqrt((mass*1.0E-3_dp)/uener) * 100.0_dp  ! unit time in picoseconds
 
 return
 
