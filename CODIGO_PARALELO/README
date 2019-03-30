@@ -1,0 +1,92 @@
+----------------------
+ARCHIVOS EN LA CARPETA
+----------------------
+
+En esta carpeta se encuentran las subrutinas empleadas para el calculo en paralelo.
+Para una descripcion algo mas detallada ver el README en la carpeta CODIGO. Salvo que se diga 
+lo contrario, todas las subrutinas mencionadas estan programadas en paralelo.
+
+
+
+
+1. sub_initialize.f90
+   ------------------
+   i) initialize_r  :: inicializacion de las posiciones (EN SERIE).
+   ii) initialize_v :: inicializacion de las velocidades
+
+
+2. sub_periodic.f90
+   ----------------
+   i) PBC :: condiciones periodicas de contorno
+
+
+3. sub_fuerzas.f90
+   ---------------
+   i) forces :: calculo de fuerzas y energia potencial
+
+
+4. sub_kinetic_press.f90
+   ---------------------
+   ii) ekinpress :: calculo de presion y energia cinetica
+
+
+5. sub_integrate.f90
+   -----------------
+   Contiene 3 subrutinas:
+   i) v_verlet_step  :: integracion de las ecuaciones del movimiento
+   ii) thermostat    :: implementacion del termostato de Andersen
+   iii) normal_distr :: generador de numeros aleatorios con distribucion gausiana (SERIE)
+
+
+6. sub_gr.f90
+   ----------
+   i) gr :: calcula la funcion de distribucion radial
+
+
+7. sub_meansquare.f90
+   ------------------
+   i) MSDISPLACEMENT :: calcula el mean square displacement
+
+
+8. binning.f90
+   -----------
+   Modulo para el analisis estadistico (SERIE)
+
+
+9. input.txt
+   ---------
+   Archivo de texto que contiene los diferentes parametros necesarios para hacer los calculos:
+   parametros de Lennard-Jones, masa, temperatura, numero de particulas, etc.
+
+
+10. main.f90
+   --------
+   Programa princial. Sigue la misma estrucutura que el programa en serie, salvo que en este caso
+   al inicio del programa se inicializa el entorno MPI y se definen algunas variables necesarias
+   para el calculo en paralelo
+
+
+11. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu
+    ---------------------------------------------
+   Instruciones para realizar los graficos necesarios en gnuplot para a) las energias potencial y
+   cinetica, b) la presion y temperatura y c) la funncion de distribucion radial y mean square
+   displacement.
+
+
+12. Makefile
+    --------
+   Makefile para correr los compilar el programa, correr los calculos y hacer los graficos (ver abajo)
+
+
+
+------------------------------
+COMO REPRODUCIR LOS RESULTADOS
+------------------------------
+
+En el archivo input.txt se especifican todos los parametros necesarios para reproducir los resultados
+que se han añadido en el repositorio.
+Solo se debe ejecutar el comando 'make plot' para compilar, ejecutar y dibujar los resultados
+directamente.
+En esta primera entrega del trabajo no se ha ejecutado el codigo 'binning.f90' ya que el analisis
+estadistico se hara para la memoria escrita (por lo que de momento tampoco se ha incluido en el 
+Makefile).

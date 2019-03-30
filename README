@@ -40,10 +40,14 @@ DIRECTORIOS EN EL REPOSITORIO
 El repositorio esta formado por tres carpetas:
 
 1. CODIGO          :: Carpeta con el codigo en serie. Contiene otro README con la explicacion de 
-                      los diferentes archivos que hay en esta carpeta.
+                      los diferentes archivos que hay en esta carpeta. En el README de esta
+                      carpeta se dan algunos detalles sobre las subrutinas implementadas
+                      (que algoritmos se han usado, etc.), por lo que se recomienda leerlo en
+                      primer lugar
 
 2. CODIGO_PARALELO :: Carpeta con el codigo en paralelo. Contiene otro README con la explicacion 
-                      de los diferentes archivos que hay en esta carpeta.
+                      de los diferentes archivos que hay en esta carpeta, aunque no se explican 
+                      en detalle.
 
 3. RESULTADOS      :: Carpeta con los resultados obtenidos para dos sistemas:
                       (a) El sistema de helio que se pedia en el proyecto
