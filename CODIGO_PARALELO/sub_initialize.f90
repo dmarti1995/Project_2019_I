@@ -11,21 +11,17 @@
   use mpi
   
   implicit none
-  
-  ! LA VERSION FINAL TENDRA QUES SER CON PRECISION
-  ! DOBLE, LA COMUNICACION HACE QUE SE PIERDAN MUCHOS
-  ! DECIMALES 'BUENOS'...
 
-  !integer, parameter                   :: dp = 8
-  real, dimension(N,3), intent(out)     :: v
-  real, intent(in)                      :: T
+  integer, parameter                    :: dp = 8
+  real(dp), dimension(N,3), intent(out) :: v
+  real(dp), intent(in)                  :: T
   integer, intent(in)                   :: N, numproc, taskid
   integer, intent(inout)                :: ierr
-  real, dimension(:,:), allocatable     :: local
+  real(dp), dimension(:,:), allocatable :: local
   integer, dimension(2)                 :: starts, size_total, size_sub
   integer, dimension(:), allocatable    :: seed
   integer                               :: blocktype, resizedtype, realsize, long, i, partition, size_seed
-  real                                  :: kinetic_partial, kinetic, rand(3), suma_local(3), suma(3)
+  real(dp)                              :: kinetic_partial, kinetic, rand(3), suma_local(3), suma(3)
   integer(kind=MPI_Address_kind)        :: start, extent
 
   ! For random number generator...
@@ -47,11 +43,11 @@
 
   ! Create subarray structure
   call MPI_Type_create_subarray(2, size_total, size_sub, starts, &
-                               MPI_ORDER_FORTRAN, MPI_REAL,     &
+                               MPI_ORDER_FORTRAN, MPI_REAL8,     &
                                blocktype, ierr)
 
   ! Realsize
-  call MPI_Type_size(MPI_REAL, realsize, ierr)
+  call MPI_Type_size(MPI_REAL8, realsize, ierr)
 
   ! Memory of each subarray
   extent = realsize*partition
@@ -70,7 +66,7 @@
   seed = 377*(1+taskid)
   call random_seed(put=seed)
   call random_number(local)
-  local = local - 0.5
+  local = local - 0.5_dp
 
 
   suma_local(1) = sum(local(:,1))
@@ -82,7 +78,7 @@
   ! for x,y and z directions to set the total momentum 
   ! to zero
 
-  call MPI_allreduce(suma_local,suma,size(suma),MPI_REAL, &
+  call MPI_allreduce(suma_local,suma,size(suma),MPI_REAL8, &
                      MPI_SUM,MPI_COMM_WORLD,ierr) 
 
 
@@ -100,7 +96,7 @@
          seed = 134
          call random_seed(put=seed)
          call random_number(rand)
-         v(i,:) = rand - 0.5
+         v(i,:) = rand - 0.5_dp
      enddo
 
      suma = suma + (/ sum(v(long+1:,1)), sum(v(long+1:,2)), sum(v(long+1:,3)) /)
@@ -130,30 +126,30 @@
   ! makes a partial sum and then we collect everything
   ! with MPI_allreduce ---> mpi_sum
 
-  kinetic_partial = sum(local**2.0)
+  kinetic_partial = sum(local**2.0_dp)
 
-  call MPI_allreduce(kinetic_partial,kinetic,1,MPI_REAL, &
+  call MPI_allreduce(kinetic_partial,kinetic,1,MPI_REAL8, &
                      MPI_SUM,MPI_COMM_WORLD,ierr)
 
   ! Check if there is more to sum ---> long/=N ?
   if (long/=N ) then
-     kinetic = kinetic + sum(v(long+1:,:)**2.0)
+     kinetic = kinetic + sum(v(long+1:,:)**2.0_dp)
   endif
 
   
-  kinetic = kinetic * 0.5
+  kinetic = kinetic * 0.5_dp
  
   ! Rescale velocities with temperature
-  local = local * sqrt(1.5 * N * T / kinetic)
+  local = local * sqrt(1.5_dp * N * T / kinetic)
 
   ! Before finishing the subroutine, all the processors
   ! must know the v array
-  call MPI_allgather(local, size(local), MPI_REAL,  &
+  call MPI_allgather(local, size(local), MPI_REAL8,  &
                v, 1, resizedtype, MPI_COMM_WORLD, ierr) 
 
   ! Check long/=N ...
   if (long/=N ) then
-         v(long+1:,:) = v(long+1:,:) * sqrt(1.5 * N * T / kinetic)
+         v(long+1:,:) = v(long+1:,:) * sqrt(1.5_dp * N * T / kinetic)
   endif
 
 
@@ -175,18 +171,19 @@
   subroutine initialize_r(pos,rho,N,L)
 
   implicit none
+  integer, parameter    :: dp = 8
   integer, intent(in)   :: N
-  real, intent(in)      :: rho
-  real, intent(out)     :: pos(N,3)
-  real, intent(out)     :: L
-  real                  :: a, kinetic
+  real(dp), intent(in)  :: rho
+  real(dp), intent(out) :: pos(N,3)
+  real(dp), intent(out) :: L
+  real(dp)              :: a, kinetic
   integer               :: i, j, k, cont, M
   integer, dimension(3) :: R
 
   ! Initialization of the structure
 
-  M = int((N/4.0)**(1.0/3.0))
-  L = (N/rho)**(1.0/3.0)
+  M = int((N/4.0_dp)**(1.0_dp/3.0_dp))
+  L = (N/rho)**(1.0_dp/3.0_dp)
   a = L/M 
 
   cont = 0
@@ -196,9 +193,9 @@
           do k = 0, M-1
               R = (/i,j,k/)
               pos(4*cont+1,:) = a*R
-              pos(4*cont+2,:) = a*R + pos(1,:) + a*0.5*(/1.0,1.0,0.0/)
-              pos(4*cont+3,:) = a*R + pos(1,:) + a*0.5*(/0.0,1.0,1.0/)
-              pos(4*cont+4,:) = a*R + pos(1,:) + a*0.5*(/1.0,0.0,1.0/)
+              pos(4*cont+2,:) = a*R + pos(1,:) + a*0.5_dp*(/1.0_dp,1.0_dp,0.0_dp/)
+              pos(4*cont+3,:) = a*R + pos(1,:) + a*0.5_dp*(/0.0_dp,1.0_dp,1.0_dp/)
+              pos(4*cont+4,:) = a*R + pos(1,:) + a*0.5_dp*(/1.0_dp,0.0_dp,1.0_dp/)
               cont = cont + 1
           enddo
       enddo

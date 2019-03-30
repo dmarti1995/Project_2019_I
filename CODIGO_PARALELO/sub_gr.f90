@@ -11,28 +11,29 @@ subroutine gr(numproc,taskid,table_index2,pairindex,N,dim,density,L,COORD,rmax,n
 !dr(out): valor del intervalo dr
   USE MPI
 implicit none
-real,parameter:: pi = acos(-1.0)
-real,parameter:: con = (4.0/3.0)*pi
-integer,intent(in):: numproc,taskid,table_index2(0:numproc-1,2),pairindex((N*(N-1))/2,2)
-integer,intent(in):: N,dim
-real,intent(in):: density,L
-real,intent(in):: COORD(N,dim)
-real,intent(in):: rmax 
-integer,intent(in):: ncajas
-real:: contint
-integer:: Histogram(ncajas),caja
-real,intent(out):: g(ncajas)
-real:: dr
-integer:: Nx,Ny,Nz
-integer:: i,j
-real:: r(3),rL(3)
-real:: R2,R2_caja
-integer:: imin,imax,cont
+integer, parameter   :: dp = 8
+real(dp),parameter   :: pi = acos(-1.0_dp)
+real(dp),parameter   :: con = (4.0_dp/3.0_dp)*pi
+integer,intent(in)   :: numproc,taskid,table_index2(0:numproc-1,2),pairindex((N*(N-1))/2,2)
+integer,intent(in)   :: N,dim
+real(dp),intent(in)  :: density,L
+real(dp),intent(in)  :: COORD(N,dim)
+real(dp),intent(in)  :: rmax 
+integer,intent(in)   :: ncajas
+real(dp)             :: contint
+integer              :: Histogram(ncajas),caja
+real(dp),intent(out) :: g(ncajas)
+real(dp)             :: dr
+integer              :: Nx,Ny,Nz
+integer              :: i,j
+real(dp)             :: r(3),rL(3)
+real(dp)             :: R2,R2_caja
+integer              :: imin,imax,cont
 
 imin = table_index2(taskid,1)
 imax = table_index2(taskid,2)
 
-g = 0.0d0
+g = 0.0_dp
 dr = rmax/dble(ncajas)
 
 
@@ -51,7 +52,7 @@ j = pairindex(cont,2)
 			do Nz = -1,1
 !we make an histogram of all the images of the particle pairs.
 				rL = r + L*(/Nx,Ny,Nz/)
-				R2 = sqrt(sum(rL**2))
+				R2 = sqrt(sum(rL**2.0_dp))
 				caja = int(r2/dr) + 1
 				if (caja<0) then
 					cycle
@@ -66,11 +67,11 @@ j = pairindex(cont,2)
 enddo
 
 !From the Histogram we compute the g(r) of this time step 
-contint = 0.0d0
+contint = 0.0_dp
 do j = 1,ncajas
 	if (Histogram(j)/=0) then
 		g(j) =  dble(Histogram(j))/&
-		(N*(con*((contint+dr)**3-(contint)**3))*density)
+		(N*(con*((contint+dr)**3.0_dp-(contint)**3.0_dp))*density)
 	endif
 	contint = contint + dr
 enddo
@@ -93,20 +94,21 @@ subroutine gr2(numproc,taskid,table_index2,pairindex,N,dim,L,COORD,rmax,ncajas,H
 !dr(out): valor del intervalo dr
   USE MPI
 implicit none
-integer,intent(in):: numproc,taskid,table_index2(0:numproc-1,2),pairindex((N*(N-1))/2,2)
-integer,intent(in):: N,dim
-real,intent(in):: L
-real,intent(in):: COORD(N,dim)
-real,intent(in):: rmax 
-integer,intent(in):: ncajas
-integer,intent(out):: Histogram(ncajas)
-integer:: caja
-real:: dr
-integer:: Nx,Ny,Nz
-integer:: i,j
-real:: r(3),rL(3)
-real:: R2,R2_caja
-integer:: imin,imax,cont
+integer, parameter  :: dp = 8
+integer,intent(in)  :: numproc,taskid,table_index2(0:numproc-1,2),pairindex((N*(N-1))/2,2)
+integer,intent(in)  :: N,dim
+real(dp),intent(in) :: L
+real(dp),intent(in) :: COORD(N,dim)
+real(dp),intent(in) :: rmax 
+integer,intent(in)  :: ncajas
+integer,intent(out) :: Histogram(ncajas)
+integer             :: caja
+real(dp)            :: dr
+integer             :: Nx,Ny,Nz
+integer             :: i,j
+real(dp)            :: r(3),rL(3)
+real(dp)            :: R2,R2_caja
+integer             :: imin,imax,cont
 
 imin = table_index2(taskid,1)
 imax = table_index2(taskid,2)
@@ -130,7 +132,7 @@ j = pairindex(cont,2)
 			do Nz = -1,1
 !we make an histogram of all the images of the particle pairs.
 				rL = r + L*(/Nx,Ny,Nz/)
-				R2 = sqrt(sum(rL**2))
+				R2 = sqrt(sum(rL**2.0_dp))
 				caja = int(r2/dr) + 1
 				if (caja<0) then
 					cycle
