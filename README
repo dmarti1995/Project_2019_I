@@ -1,116 +1,51 @@
+        =====================================================
+        PROYECTO HERRAMIENTAS INFORMATICAS AVANZADAS: GRUPO 1
+        =====================================================
+
 ------------------------
 DISTRIBUCION DEL TRABAJO
 ------------------------
 
-Coordinacion        --> Jon Lopez (jlopez141)
-Intial state        --> Asier Zabalo (azabaloa)
-Boundary Conditions --> Didac Marti (dmarti1995)
-Forces              --> Manuel Canovas (ManuelC1996)
-Integration         --> Jon Lopez (jlopez141)
-Statistics          --> Joan Giralt (joangi96)
-Visualization       --> Sergio Granados (slevinskygra)
-Makefile            --> Asier Zabalo (azabaloa)
++ Coordinacion :: Jon Lopez                         (jlopez141)
++ Makefile     :: Asier Zabalo                      (azabaloa)
+
+
+1. Programacion en serie:
+   ---------------------
+   + Estado inicial           :: Asier Zabalo       (azabaloa)
+   + Condiciones de contorno  :: Didac Marti        (dmarti1995)
+   + Fuerza, energia, presion :: Manuel Canovas     (ManuelC1996)
+   + Integracion de las eq.   :: Jon Lopez          (jlopez141)
+   + Termostato               :: Jon Lopez          (jlopez141)
+   + Estadistica              :: Joan Giralt        (joangi96)
+   + Visualizacion            :: Sergio Granados    (slevinskygra)
+   + Programa principal       :: Sergio Granados    (slevinskygra)
+
+
+2. Programacion en paralelo:
+   ------------------------
+   + Estado inicial           :: Asier Zabalo       (azabaloa)
+   + Condiciones de contorno  :: Didac Marti        (dmarti1995)
+   + Fuerza, energia, presion :: Manuel Canovas     (ManuelC1996)
+   + Integracion de las eq.   :: Jon Lopez          (jlopez141)
+   + Termostato               :: Sergio Granados    (slevinskygra)
+   + Estadistica              :: Joan Giralt        (joangi96)
 
 
 
---------------------------
-ARCHIVOS EN EL REPOSITORIO
---------------------------
+-----------------------------
+DIRECTORIOS EN EL REPOSITORIO
+-----------------------------
 
-El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en este repositorio:
+El repositorio esta formado por tres carpetas:
 
-1. sub_initialize.f90
-   ------------------
-   En este archivo se encuentran 2 subrutinas diferentes:
-   i) initialize_r  :: inicializa las posiciones siguiendo una estrucutura FCC de acuerdo a la
-                       densidad que se indique como input.
-   ii) initialize_v :: inicializa las velocidades para que la energia cinetica se adapte a la
-                       temperatura deseada y manteniendo el momento lineal total nulo.
+1. CODIGO          :: Carpeta con el codigo en serie. Contiene otro README con la explicacion de 
+                      los diferentes archivos que hay en esta carpeta.
 
+2. CODIGO_PARALELO :: Carpeta con el codigo en paralelo. Contiene otro README con la explicacion 
+                      de los diferentes archivos que hay en esta carpeta.
 
-2. sub_periodic.f90
-   ----------------
-   i) PBC :: impone las condiciones periodicas de contorno a las posciones de las particulas.
+3. RESULTADOS      :: Carpeta con los resultados obtenidos para dos sistemas:
+                      (a) El sistema de helio que se pedia en el proyecto
+                      (b) Un liquido de argon
 
-
-3. sub_fuerzas.f90
-   -----------
-   i) forces :: calcula las fuerzas que actuan sobre cada particula (interaccion Lennard-Jones)
-                ademas de la presion total y las energias cinetica y potencial.
-
-
-4. sub_integrate.f90
-   -----------------
-   Contiene 3 subrutinas:
-   i) v_verlet_step  :: calcula las posiciones y velocidades en el siguiente instante de tiempo
-                        integrando las ecuaciones de movimiento mediante el algoritmo de 
-                        velocity verlet.
-   ii) thermostat    :: implementacion del termostato de Andersen
-   iii) normal_distr :: generador de numeros aleatorios con distribucion gausiana(se utiliza
-                        para el termostato de andersen)
-
-
-5. sub_gr.f90
-   ----------
-   i) gr :: calcula la funcion de distribucion radial para una configuracion r(N,3)
-
-
-6. sub_meansquare.f90
-   ------------------
-   i) MSDISPLACEMENT :: calcula el mean square displacement en el instate t, respecto a una
-                        configuracion de referencia
-
-
-7. binning.f90
-   -----------
-   Modulo en el que se utiliza la tecnica de binning para calcular la media y error estadistico de
-   las magnitudes calculadas en el programa principal.
-
-
-8. input.txt
-   ---------
-   Archivo de texto que contiene los diferentes parametros necesarios para hacer los calculos:
-   parametros de Lennard-Jones, masa, temperatura, numero de particulas, etc.
-
-
-9. main.f90
-   --------
-   Programa princial.
-   Se empieza leyendo los datos del archivo input.txt.
-   A continuacion se inicializa el sistema de acuerdo a la densidad requerida.
-   Se hace una breve simulacion a alta temperatura para conseguir una estructura de un fluido.
-   Por ultimo se cambia la temperatura a la original y se hace la simulacion para obtener los datos.
-
-
-10. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu
-    ---------------------------------------------
-   Instruciones para realizar los graficos necesarios en gnuplot para a) las energias potencial y
-   cinetica, b) la presion y temperatura y c) la funncion de distribucion radial y mean square
-   displacement.
-
-
-11. Makefile
-    --------
-   Makefile para correr los compilar el programa, correr los calculos y hacer los graficos (ver abajo)
-
-
-
-----------
-RESULTADOS
-----------
-
-En la carpeta RESULTADOS se encuentran los resultados obtenidos en la simuacion.
-
-
-
-------------------------------
-COMO REPRODUCIR LOS RESULTADOS
-------------------------------
-
-En el archivo input.txt se especifican todos los parametros necesarios para reproducir los resultados
-que se han añadido en el repositorio.
-Solo se debe ejecutar el comando 'make plot' para compilar, ejecutar y dibujar los resultados
-directamente.
-En esta primera entrega del trabajo no se ha ejecutado el codigo 'binning.f90' ya que el analisis
-estadistico se hara para la memoria escrita (por lo que de momento tampoco se ha incluido en el 
-Makefile tampoco).
