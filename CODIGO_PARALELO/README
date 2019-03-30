@@ -38,42 +38,50 @@ lo contrario, todas las subrutinas mencionadas estan programadas en paralelo.
    iii) normal_distr :: generador de numeros aleatorios con distribucion gausiana (SERIE)
 
 
-6. sub_gr.f90
+6. sub_int_PBC_therm.f90
+   ---------------------
+   i) v_verlet_pbc_therm :: combinación de las subrutinas de integracion, termostato y condiciones
+                            periodicas de contorno para evitar comunicaciones innecesarias.
+                            (En el informe se argumenta el uso de esta subrutina sobre las otras
+                             tres independientes.)
+
+
+7. sub_gr.f90
    ----------
    i) gr :: calcula la funcion de distribucion radial
 
 
-7. sub_meansquare.f90
+8. sub_meansquare.f90
    ------------------
    i) MSDISPLACEMENT :: calcula el mean square displacement
 
 
-8. binning.f90
+9. binning.f90
    -----------
    Modulo para el analisis estadistico (SERIE)
 
 
-9. input.txt
+10. input.txt
    ---------
    Archivo de texto que contiene los diferentes parametros necesarios para hacer los calculos:
    parametros de Lennard-Jones, masa, temperatura, numero de particulas, etc.
 
 
-10. main.f90
+11. main.f90
    --------
    Programa princial. Sigue la misma estrucutura que el programa en serie, salvo que en este caso
    al inicio del programa se inicializa el entorno MPI y se definen algunas variables necesarias
    para el calculo en paralelo
 
 
-11. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu
+12. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu
     ---------------------------------------------
    Instruciones para realizar los graficos necesarios en gnuplot para a) las energias potencial y
    cinetica, b) la presion y temperatura y c) la funncion de distribucion radial y mean square
    displacement.
 
 
-12. Makefile
+13. Makefile
     --------
    Makefile para correr los compilar el programa, correr los calculos y hacer los graficos (ver abajo)
 
