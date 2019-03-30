@@ -21,7 +21,7 @@ execute: program.exe
 
 ##
 ## program.exe: obtain the program executable
-program.exe: sub_int_PBC_therm.f90 sub_fuerzas.f90 sub_initialize.f90 sub_gr.f90 sub_meansquare.f90 main.f90
+program.exe: sub_int_PBC_therm.f90 sub_fuerzas.f90 sub_kinetic_press.f90 sub_initialize.f90 sub_gr.f90 sub_meansquare.f90 main.f90
 	@$(mpif90) -o $@ $^
 
 ##
