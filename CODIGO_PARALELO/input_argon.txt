@@ -1,0 +1,15 @@
+1000	 ! equilibration timesteps
+100000  ! timesteps
+3        ! dimension
+108      ! particles
+3.4      ! particle radius sigma (Angstroms)
+998.0    ! energy unit (eps) Argon : J/mol
+40.0	 ! mass g/mol
+0.0003   ! simulation dt
+0.1      ! anderset thermostat parameter
+1.352    ! density g/cm^3
+2.5      ! cutoff radius, in reduced units (particle radius=1)
+1201.0   ! temperature, in Kelvin
+3500.0      ! pressure, in ATM
+10 100   ! number of time steps to measure g(r) and mean square displacement
+500	 ! Number of positions to calculate radial distribution function
