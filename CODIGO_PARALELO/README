@@ -87,7 +87,9 @@ lo contrario, todas las subrutinas mencionadas estan programadas en paralelo.
 
 13. Makefile
     --------
-   Makefile para correr los compilar el programa, correr los calculos y hacer los graficos (ver abajo)
+   Para ejecutar el programa, basta con escribir 'make'. Por defecto, el codigo se ejecuta
+   con dos procesadores, pero es posible cambiar esta opcion escribiendo: 'make numproc=N',
+   donde N es el numero de procesadores que se desea utilizar. Para mas opciones 'make help'.
 
 
 
@@ -97,8 +99,7 @@ COMO REPRODUCIR LOS RESULTADOS
 
 En el archivo input.txt se especifican todos los parametros necesarios para reproducir los resultados
 que se han añadido en el repositorio.
-Solo se debe ejecutar el comando 'make plot' para compilar, ejecutar y dibujar los resultados
-directamente.
-En esta primera entrega del trabajo no se ha ejecutado el codigo 'binning.f90' ya que el analisis
-estadistico se hara para la memoria escrita (por lo que de momento tampoco se ha incluido en el 
-Makefile).
+Para reproducir nuestros calculos, se ejecuta el comando 'make' obteniendo un fichero de datos con todo
+lo necesario para dibujar resultados. A continuacion, 'make plot' crea las imagenes .eps.
+
+
