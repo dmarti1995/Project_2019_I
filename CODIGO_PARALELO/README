@@ -63,8 +63,12 @@ lo contrario, todas las subrutinas mencionadas estan programadas en paralelo.
 
 10. input.txt
    ---------
-   Archivo de texto que contiene los diferentes parametros necesarios para hacer los calculos:
-   parametros de Lennard-Jones, masa, temperatura, numero de particulas, etc.
+   Parametros de entrada para el sistema de Helio.
+
+
+10. input_argon.txt
+   ----------------
+   Parametros de entrada para el sistema de Argon.
 
 
 11. main.f90
