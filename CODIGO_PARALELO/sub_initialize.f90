@@ -182,7 +182,7 @@
 
   ! Initialization of the structure
 
-  M = int((N/4.0_dp)**(1.0_dp/3.0_dp))
+  M = nint((N/4.0_dp)**(1.0_dp/3.0_dp))
   L = (N/rho)**(1.0_dp/3.0_dp)
   a = L/M 
 
