@@ -1,7 +1,7 @@
 1000	 ! equilibration timesteps
-10000  ! timesteps
+1000000  ! timesteps
 3        ! dimension
-108     ! particles
+500      ! particles
 2.556    ! particle radius sigma (Angstroms)
 84.928   ! energy unit (eps) Argon : J/mol
 4.0	 ! mass g/mol
