@@ -4,7 +4,7 @@ ARCHIVOS EN LA CARPETA
 
 El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en este repositorio:
 
-1. sub_initialize.f90
+1. sub_initialize.f90 (Asier Zabalo)
    ------------------
    En este archivo se encuentran 2 subrutinas diferentes:
    i) initialize_r  :: inicializa las posiciones siguiendo una estrucutura FCC de acuerdo a la
@@ -13,18 +13,18 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
                        temperatura deseada y manteniendo el momento lineal total nulo.
 
 
-2. sub_periodic.f90
+2. sub_periodic.f90 (Didac Marti)
    ----------------
    i) PBC :: impone las condiciones periodicas de contorno a las posciones de las particulas.
 
 
-3. sub_fuerzas.f90
-   -----------
+3. sub_fuerzas.f90 (Manuel Canovas)
+   ---------------
    i) forces :: calcula las fuerzas que actuan sobre cada particula (interaccion Lennard-Jones)
                 ademas de la presion total y las energias cinetica y potencial.
 
 
-4. sub_integrate.f90
+4. sub_integrate.f90 (Jon Lopez)
    -----------------
    Contiene 3 subrutinas:
    i) v_verlet_step  :: calcula las posiciones y velocidades en el siguiente instante de tiempo
@@ -35,18 +35,18 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
                         para el termostato de andersen)
 
 
-5. sub_gr.f90
+5. sub_gr.f90 (Joan Giralt)
    ----------
    i) gr :: calcula la funcion de distribucion radial para una configuracion r(N,3)
 
 
-6. sub_meansquare.f90
+6. sub_meansquare.f90 (Joan Giralt)
    ------------------
    i) MSDISPLACEMENT :: calcula el mean square displacement en el instate t, respecto a una
                         configuracion de referencia
 
 
-7. binning.f90
+7. binning.f90 (Joan Giralt)
    -----------
    Modulo en el que se utiliza la tecnica de binning para calcular la media y error estadistico de
    las magnitudes calculadas en el programa principal.
@@ -67,14 +67,14 @@ El trabajo se ha dividido en diferentes subrutinas que se pueden encontrar en es
    Por ultimo se cambia la temperatura a la original y se hace la simulacion para obtener los datos.
 
 
-10. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu
+10. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu (Sergio Granados)
     ---------------------------------------------
    Instruciones para realizar los graficos necesarios en gnuplot para a) las energias potencial y
    cinetica, b) la presion y temperatura y c) la funncion de distribucion radial y mean square
    displacement.
 
 
-11. Makefile
+11. Makefile (Asier Zabalo)
     --------
    Makefile para correr los compilar el programa, correr los calculos y hacer los graficos (ver abajo)
 

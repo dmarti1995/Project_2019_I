@@ -9,28 +9,28 @@ lo contrario, todas las subrutinas mencionadas estan programadas en paralelo.
 
 
 
-1. sub_initialize.f90
+1. sub_initialize.f90 (Asier Zabalo)
    ------------------
    i) initialize_r  :: inicializacion de las posiciones (EN SERIE).
    ii) initialize_v :: inicializacion de las velocidades
 
 
-2. sub_periodic.f90
+2. sub_periodic.f90 (Didac Marti)
    ----------------
    i) PBC :: condiciones periodicas de contorno
 
 
-3. sub_fuerzas.f90
+3. sub_fuerzas.f90 (Manuel Canovas)
    ---------------
    i) forces :: calculo de fuerzas y energia potencial
 
 
-4. sub_kinetic_press.f90
+4. sub_kinetic_press.f90 (Manuel Canovas)
    ---------------------
    ii) ekinpress :: calculo de presion y energia cinetica
 
 
-5. sub_integrate.f90
+5. sub_integrate.f90 (Jon Lopez y Sergio Granados)
    -----------------
    Contiene 3 subrutinas:
    i) v_verlet_step  :: integracion de las ecuaciones del movimiento
@@ -46,17 +46,17 @@ lo contrario, todas las subrutinas mencionadas estan programadas en paralelo.
                              tres independientes.)
 
 
-7. sub_gr.f90
+7. sub_gr.f90 (Joan Giralt)
    ----------
    i) gr :: calcula la funcion de distribucion radial
 
 
-8. sub_meansquare.f90
+8. sub_meansquare.f90 (Joan Giralt)
    ------------------
    i) MSDISPLACEMENT :: calcula el mean square displacement
 
 
-9. binning.f90
+9. binning.f90 (Joan Giralt)
    -----------
    Modulo para el analisis estadistico (SERIE)
 
@@ -78,14 +78,14 @@ lo contrario, todas las subrutinas mencionadas estan programadas en paralelo.
    para el calculo en paralelo
 
 
-12. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu
+12. plot_E.gnu    plot_pt.gnu    plot_rdf_msd.gnu (Sergio Granados)
     ---------------------------------------------
    Instruciones para realizar los graficos necesarios en gnuplot para a) las energias potencial y
    cinetica, b) la presion y temperatura y c) la funncion de distribucion radial y mean square
    displacement.
 
 
-13. Makefile
+13. Makefile (Asier Zabalo)
     --------
    Para ejecutar el programa, basta con escribir 'make'. Por defecto, el codigo se ejecuta
    con dos procesadores, pero es posible cambiar esta opcion escribiendo: 'make numproc=N',
@@ -101,5 +101,8 @@ En el archivo input.txt se especifican todos los parametros necesarios para repr
 que se han añadido en el repositorio.
 Para reproducir nuestros calculos, se ejecuta el comando 'make' obteniendo un fichero de datos con todo
 lo necesario para dibujar resultados. A continuacion, 'make plot' crea las imagenes .eps.
+
+Por defecto, se realiza el calculo para el sistema con Helio, pero se puede cambiar y hacer el 
+calculo para el argon cambiando dentro del archivo 'main.f90' de que archivo se leen los datos.
 
 
